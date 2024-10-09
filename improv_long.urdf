@@ -1,0 +1,423 @@
+<robot name="robot">
+	<link name="1.1">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+	</link>
+	<link name="21.21_body_1">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="21.21_body_1_visual">
+			<origin xyz="0.0 0.0 -0.0225" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</visual>
+		<collision name="21.21_body_1_collision">
+			<origin xyz="0.0 0.0 -0.0225" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="21.21_body_2">
+		<inertial>
+			<origin xyz="0.0 0.019299999999999998 0.0833" rpy="-1.5707963267948966 0.0 0.0" />
+			<mass value="3.9" />
+			<inertia ixx="0.042799" ixy="0.0" ixz="0.0" iyy="0.037801" iyz="0.0" izz="0.010997" />
+		</inertial>
+		<visual name="21.21_body_2_visual">
+			<origin xyz="0.0 -0.015 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.09" />
+			</geometry>
+		</visual>
+		<collision name="21.21_body_2_collision">
+			<origin xyz="0.0 -0.015 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.09" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="21.21_body_3">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="21.21_body_3_visual">
+			<origin xyz="0.0 0.0 -0.0225" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</visual>
+		<collision name="21.21_body_3_collision">
+			<origin xyz="0.0 0.0 -0.0225" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="4.4">
+		<inertial>
+			<origin xyz="0.0 0.175 -0.0132" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="1.62" />
+			<inertia ixx="0.074338" ixy="1e-06" ixz="-6e-06" iyy="0.017132" iyz="0.003742" izz="0.074338" />
+		</inertial>
+		<visual name="4.4_visual">
+			<origin xyz="-1.2220184685950967e-15 0.35 0.0" rpy="1.1281287467401296e-29 -3.1086244689504383e-15 -1.8216880036222622e-44" />
+			<geometry>
+				<mesh filename="package://STLfiles/L1.stl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="4.4_collision">
+			<origin xyz="-1.2220184685950967e-15 0.35 0.0" rpy="1.1281287467401296e-29 -3.1086244689504383e-15 -1.8216880036222622e-44" />
+			<geometry>
+				<mesh filename="package://STLfiles/convexDecompose/L1.stl.wrl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="21-1.21_body_1">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="21-1.21_body_1_visual">
+			<origin xyz="0.0 0.0 -0.0225" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</visual>
+		<collision name="21-1.21_body_1_collision">
+			<origin xyz="0.0 0.0 -0.0225" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="21-1.21_body_2">
+		<inertial>
+			<origin xyz="0.0 0.019299999999999998 0.0833" rpy="-1.5707963267948966 0.0 0.0" />
+			<mass value="3.9" />
+			<inertia ixx="0.042799" ixy="0.0" ixz="0.0" iyy="0.037801" iyz="0.0" izz="0.010997" />
+		</inertial>
+		<visual name="21-1.21_body_2_visual">
+			<origin xyz="0.0 -0.015 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.09" />
+			</geometry>
+		</visual>
+		<collision name="21-1.21_body_2_collision">
+			<origin xyz="0.0 -0.015 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.09" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="21-1.21_body_3">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="21-1.21_body_3_visual">
+			<origin xyz="0.0 0.0 -0.0225" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</visual>
+		<collision name="21-1.21_body_3_collision">
+			<origin xyz="0.0 0.0 -0.0225" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="15.15">
+		<inertial>
+			<origin xyz="-0.00018 -0.0477 -0.071" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="1.0" />
+			<inertia ixx="0.013909" ixy="3e-06" ixz="6e-06" iyy="0.010894" iyz="-0.005211" izz="0.003893" />
+		</inertial>
+		<visual name="15.15_visual">
+			<origin xyz="-3.273093307800421e-16 -0.1013 -0.11990000000000035" rpy="-1.570796326794893 3.3306690738754696e-15 -3.3306690738754696e-15" />
+			<geometry>
+				<mesh filename="package://STLfiles/L9.stl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="15.15_collision">
+			<origin xyz="-3.273093307800421e-16 -0.1013 -0.11990000000000035" rpy="-1.570796326794893 3.3306690738754696e-15 -3.3306690738754696e-15" />
+			<geometry>
+				<mesh filename="package://STLfiles/convexDecompose/L9.stl.wrl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="22.22_body_1">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="22.22_body_1_visual">
+			<origin xyz="0.0 0.0 -0.0225" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</visual>
+		<collision name="22.22_body_1_collision">
+			<origin xyz="0.0 0.0 -0.0225" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="22.22_body_2">
+		<inertial>
+			<origin xyz="0.0 0.019299999999999998 0.0833" rpy="-1.5707963267948966 0.0 0.0" />
+			<mass value="3.9" />
+			<inertia ixx="0.042799" ixy="0.0" ixz="0.0" iyy="0.037801" iyz="0.0" izz="0.010997" />
+		</inertial>
+		<visual name="22.22_body_2_visual">
+			<origin xyz="0.0 -0.015 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.09" />
+			</geometry>
+		</visual>
+		<collision name="22.22_body_2_collision">
+			<origin xyz="0.0 -0.015 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.09" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="22.22_body_3">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="22.22_body_3_visual">
+			<origin xyz="0.0 0.0 -0.0225" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</visual>
+		<collision name="22.22_body_3_collision">
+			<origin xyz="0.0 0.0 -0.0225" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.045" length="0.045" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="5.5">
+		<inertial>
+			<origin xyz="-0.00018 -0.0477 -0.071" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="1.0" />
+			<inertia ixx="0.013909" ixy="3e-06" ixz="6e-06" iyy="0.010894" iyz="-0.005211" izz="0.003893" />
+		</inertial>
+		<visual name="5.5_visual">
+			<origin xyz="-2.41685468335115e-16 -0.0748 -0.19990000000000024" rpy="-1.570796326794893 3.3306690738754696e-15 -3.3306690738754696e-15" />
+			<geometry>
+				<mesh filename="package://STLfiles/L2.stl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="5.5_collision">
+			<origin xyz="-2.41685468335115e-16 -0.0748 -0.19990000000000024" rpy="-1.570796326794893 3.3306690738754696e-15 -3.3306690738754696e-15" />
+			<geometry>
+				<mesh filename="package://STLfiles/convexDecompose/L2.stl.wrl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="23.23_body_1">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="0.0" />
+			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+		</inertial>
+		<visual name="23.23_body_1_visual">
+			<origin xyz="0.0 0.0 -0.022500000000000003" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.035" length="0.035" />
+			</geometry>
+		</visual>
+		<collision name="23.23_body_1_collision">
+			<origin xyz="0.0 0.0 -0.022500000000000003" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.035" length="0.035" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="23.23_body_2">
+		<inertial>
+			<origin xyz="0.0 0.011800000000000005 0.06280000000000001" rpy="-1.5707963267948966 0.0 0.0" />
+			<mass value="1.8" />
+			<inertia ixx="0.01282" ixy="0.0" ixz="0.0" iyy="0.0112" iyz="0.0" izz="0.0032" />
+		</inertial>
+		<visual name="23.23_body_2_visual">
+			<origin xyz="0.0 -0.015 0.0748" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.07" />
+			</geometry>
+		</visual>
+		<collision name="23.23_body_2_collision">
+			<origin xyz="0.0 -0.015 0.0748" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<sphere radius="0.07" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="23.23_body_3">
+		<inertial>
+			<origin xyz="0.0 0.0 0.01" rpy="0.0 0.0 0.0" />
+			<mass value="0.1" />
+			<inertia ixx="3.07e-05" ixy="0.0" ixz="0.0" iyy="3.07e-05" iyz="0.0" izz="3.31e-05" />
+		</inertial>
+		<visual name="23.23_body_3_visual">
+			<origin xyz="0.0 0.0 -0.0175" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.035" length="0.035" />
+			</geometry>
+		</visual>
+		<collision name="23.23_body_3_collision">
+			<origin xyz="0.0 0.0 -0.0175" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<cylinder radius="0.035" length="0.035" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="12.12">
+		<inertial>
+			<origin xyz="0.0 0.0 -0.04" rpy="3.141592653589793 0.0 0.0" />
+			<mass value="1.4" />
+			<inertia ixx="0.004" ixy="0.0" ixz="0.0" iyy="0.0039" iyz="0.0" izz="0.0006" />
+		</inertial>
+		<visual name="12.12_visual">
+			<origin xyz="0.0 0.0 -0.163" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<mesh filename="package://STLfiles/L3.stl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="12.12_collision">
+			<origin xyz="0.0 0.0 -0.163" rpy="3.141592653589793 0.0 0.0" />
+			<geometry>
+				<mesh filename="package://STLfiles/convexDecompose/L3.stl.wrl" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="12.12.12_distal_connector.body" />
+	<joint name="21.21_body_1.21_proximal_connector" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="1.1" />
+		<child link="21.21_body_1" />
+	</joint>
+	<joint name="21.21_joint_1" type="revolute">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="21.21_body_1" />
+		<child link="21.21_body_2" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="15.68" friction="7.14" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="75.504" velocity="0.0" />
+	</joint>
+	<joint name="21.21_joint_2" type="revolute">
+		<origin xyz="0.0 0.1013 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+		<parent link="21.21_body_2" />
+		<child link="21.21_body_3" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="13.91" friction="5.1" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="75.504" velocity="0.0" />
+	</joint>
+	<joint name="4.4.4_proximal_connector" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="21.21_body_3" />
+		<child link="4.4" />
+	</joint>
+	<joint name="21-1.21_body_1.21_proximal_connector" type="fixed">
+		<origin xyz="0.0 0.35 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="4.4" />
+		<child link="21-1.21_body_1" />
+	</joint>
+	<joint name="21-1.21_joint_1" type="revolute">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="21-1.21_body_1" />
+		<child link="21-1.21_body_2" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="15.68" friction="7.14" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="75.504" velocity="0.0" />
+	</joint>
+	<joint name="21-1.21_joint_2" type="revolute">
+		<origin xyz="0.0 0.1013 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+		<parent link="21-1.21_body_2" />
+		<child link="21-1.21_body_3" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="13.91" friction="5.1" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="75.504" velocity="0.0" />
+	</joint>
+	<joint name="15.15.15_proximal_connector" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="21-1.21_body_3" />
+		<child link="15.15" />
+	</joint>
+	<joint name="22.22_body_1.22_proximal_connector" type="fixed">
+		<origin xyz="0.0 -0.1013 -0.1199" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="15.15" />
+		<child link="22.22_body_1" />
+	</joint>
+	<joint name="22.22_joint_1" type="revolute">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="22.22_body_1" />
+		<child link="22.22_body_2" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="17.89" friction="6.84" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="75.504" velocity="0.0" />
+	</joint>
+	<joint name="22.22_joint_2" type="revolute">
+		<origin xyz="0.0 0.1013 0.1013" rpy="-1.5707963267948966 0.0 0.0" />
+		<parent link="22.22_body_2" />
+		<child link="22.22_body_3" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="13.63" friction="6.91" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="75.504" velocity="0.0" />
+	</joint>
+	<joint name="5.5.5_proximal_connector" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="22.22_body_3" />
+		<child link="5.5" />
+	</joint>
+	<joint name="23.23_body_1.23_proximal_connector" type="fixed">
+		<origin xyz="0.0 -0.0748 -0.1999" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="5.5" />
+		<child link="23.23_body_1" />
+	</joint>
+	<joint name="23.23_joint_1" type="revolute">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="23.23_body_1" />
+		<child link="23.23_body_2" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="4.45" friction="2.12" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="40.0" velocity="0.0" />
+	</joint>
+	<joint name="23.23_joint_2" type="revolute">
+		<origin xyz="0.0 0.0748 0.0748" rpy="-1.5707963267948966 0.0 0.0" />
+		<parent link="23.23_body_2" />
+		<child link="23.23_body_3" />
+		<axis xyz="0 0 1" />
+		<dynamics damping="4.67" friction="2.33" />
+		<limit lower="-3.14159265358979" upper="3.14159265358979" effort="40.0" velocity="0.0" />
+	</joint>
+	<joint name="12.12.12_proximal_connector" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="23.23_body_3" />
+		<child link="12.12" />
+	</joint>
+	<joint name="12.12.12_distal_connector" type="fixed">
+		<origin xyz="0.0 0.0 -0.163" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="12.12" />
+		<child link="12.12.12_distal_connector.body" />
+	</joint>
+</robot>
