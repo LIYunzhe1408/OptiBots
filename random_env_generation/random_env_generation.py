@@ -197,6 +197,7 @@ def plot_random_cuboids_with_reachability(cuboid_info, reachable_points=[], unre
     # Create and display the interactive Plotly figure
     fig = go.Figure(data=fig_data, layout=layout)
     fig.show()
+    return reachable_points, unreachable_points
 
 
 
