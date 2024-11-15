@@ -89,7 +89,7 @@
     type="revolute">
     <origin
       xyz="0.0255 -0.0395 0"
-      rpy="0 0 0" />
+      rpy="0 0 1.57" />
     <parent
       link="motor4310_in_link" />
     <child

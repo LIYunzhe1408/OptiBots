@@ -134,12 +134,19 @@ Run HERE
 """
 usePredefined = True
 
+
+folder_name = "Assem_4305_JOINT"
+
+
 if usePredefined:
     # Use Pre-defined URDF
+    # robot = URDF.load('../assets/Assem_4310_BASE/Assem_4310_BASE/urdf/Assem_4310_BASE.urdf')
     robot = URDF.load('../assets/Assem_4305_JOINT/Assem_4305_JOINT/urdf/Assem_4305_JOINT.urdf')
+    # robot = URDF.load('../assets/Assem_4310_JOINT/Assem_4310_JOINT/urdf/Assem_4310_JOINT.urdf')
 else:
     # Use converted URDF
-    robot = URDF.load('./Assem_4305_JOINT.urdf')
-
-
-robot.animate()
+    # robot = URDF.load('./Assem_4305_JOINT.urdf')
+    robot = URDF.load('./test.urdf')
+for link in robot.links:
+    print(link.name)
+robot.show()

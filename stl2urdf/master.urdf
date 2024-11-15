@@ -1,0 +1,372 @@
+<robot name="combined_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- base_motor_link -->
+    <link
+        name="base_motor_link">
+        <inertial>
+          <origin
+            xyz="1.6355E-05 2.1044E-06 0.030945"
+            rpy="0 0 0" />
+          <mass
+            value="1.1937" />
+          <inertia
+            ixx="0.0011798"
+            ixy="-3.4788E-08"
+            ixz="2.8837E-07"
+            iyy="0.0010863"
+            iyz="5.0519E-08"
+            izz="0.0016066" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="./assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_motor_link.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.89804 0.91765 0.92941 1" />
+          </material>
+        </visual>
+        <collision>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="./assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_motor_link.STL" />
+          </geometry>
+        </collision>
+    </link>
+
+    <!-- base_out_link -->
+    <link
+        name="base_out_link">
+        <inertial>
+          <origin
+            xyz="2.3272E-17 0.0011054 0.008691"
+            rpy="0 0 0" />
+          <mass
+            value="0.088545" />
+          <inertia
+            ixx="2.4599E-05"
+            ixy="-1.5532E-21"
+            ixz="3.7828E-22"
+            iyy="2.5766E-05"
+            iyz="-7.8406E-07"
+            izz="3.0632E-05" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="./assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_out_link.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.89804 0.91765 0.92941 1" />
+          </material>
+        </visual>
+        <collision>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="./assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_out_link.STL" />
+          </geometry>
+        </collision>
+    </link>
+
+    <!-- rod_link_1 -->
+    <link name="rod_link_1">
+        <visual>
+            <geometry>
+                <box size="0.025 0.025 0.2"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+    </link>
+
+  <!-- motor4310_in_link -->
+  <link
+    name="motor4310_in_link">
+    <inertial>
+      <origin
+        xyz="0.0012212 -4.3571E-06 0.035478"
+        rpy="0 0 0" />
+      <mass
+        value="0.57649" />
+      <inertia
+        ixx="0.00051876"
+        ixy="-5.0519E-08"
+        ixz="-5.0469E-06"
+        iyy="0.00039258"
+        iyz="3.4788E-08"
+        izz="0.00029808" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.89804 0.91765 0.92941 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- motor4310_out_link -->
+  <link
+    name="motor4310_out_link">
+    <inertial>
+      <origin
+        xyz="-2.5332E-10 -0.013691 0.0011054"
+        rpy="0 0 0" />
+      <mass
+        value="0.088545" />
+      <inertia
+        ixx="2.4599E-05"
+        ixy="-3.8934E-22"
+        ixz="-1.8263E-21"
+        iyy="3.0632E-05"
+        iyz="7.8406E-07"
+        izz="2.5766E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.89804 0.91765 0.92941 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- rod_link_2 -->
+  <link name="rod_link_2">
+        <visual>
+            <geometry>
+                <box size="0.025 0.025 0.2"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+  </link>
+
+  <!-- motor4305_link -->
+  <link
+    name="motor4305_link">
+    <inertial>
+      <origin
+        xyz="0.0042941 1.4489E-06 0.034665"
+        rpy="0 0 0" />
+      <mass
+        value="0.48076" />
+      <inertia
+        ixx="0.0004787"
+        ixy="5.7034E-09"
+        ixz="-5.2375E-06"
+        iyy="0.000333"
+        iyz="1.5111E-08"
+        izz="0.00023888" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4305_JOINT/Assem_4305_JOINT/meshes/motor4305_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.89804 0.91765 0.92941 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4305_JOINT/Assem_4305_JOINT/meshes/motor4305_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- motor4305_out_link -->
+  <link
+    name="motor4305_out_link">
+    <inertial>
+      <origin
+        xyz="-1.3533E-08 -0.0025 -3.5182E-09"
+        rpy="0 0 0" />
+      <mass
+        value="0.026746" />
+      <inertia
+        ixx="5.4686E-06"
+        ixy="4.832E-22"
+        ixz="-3.7058E-22"
+        iyy="1.0826E-05"
+        iyz="-3.2034E-22"
+        izz="5.4686E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4305_JOINT/Assem_4305_JOINT/meshes/motor4305_out_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.89804 0.91765 0.92941 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="./assets/Assem_4305_JOINT/Assem_4305_JOINT/meshes/motor4305_out_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+
+
+
+
+
+
+ <!-- base_rev_joint -->
+ <joint
+        name="base_rev_joint"
+        type="revolute">
+        <origin
+          xyz="0 -0.077 0"
+          rpy="1.5708 -1.5708 0" />
+        <parent
+          link="base_motor_link" />
+        <child
+          link="base_out_link" />
+        <axis
+          xyz="1 0 0" />
+        <limit
+          lower="0"
+          upper="0"
+          effort="0"
+          velocity="0" />
+    </joint>
+
+    <!-- base to rod to 4310 Joint -->
+    <joint name="base_to_joint1" type="fixed">
+        <parent link="base_out_link"/>
+        <child link="rod_link_1"/>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- Adjust based on actual position -->
+    </joint>
+
+    <joint name="rod_1_to_4310" type="fixed">
+        <parent link="rod_link_1"/>
+        <child link="motor4310_in_link"/>
+        <origin xyz="0 0 0.1" rpy="-1.5708 0 0"/> <!-- Adjust based on actual position -->
+
+        <axis
+            xyz="0 0 1" />
+    </joint>
+
+
+    <!-- motor4310_rev_joint -->
+    <joint
+    name="motor4310_rev_joint"
+    type="revolute">
+    <origin
+      xyz="0.0255 -0.0395 0"
+      rpy="0 0 1.57" />
+    <parent
+      link="motor4310_in_link" />
+    <child
+      link="motor4310_out_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+    </joint>
+
+    <!-- 4310 Joint to rod 2 -->
+    <joint name="base_to_joint2" type="fixed">
+        <parent link="motor4310_out_link"/>
+        <child link="rod_link_2"/>
+        <origin xyz="0 -0.0875 0" rpy="-1.571 0 0"/> <!-- Adjust based on actual position -->
+    </joint>
+    <joint name="rod_2_to_4305" type="fixed">
+        <parent link="rod_link_2"/>
+        <child link="motor4305_link"/>
+        <origin xyz="0 0 -0.1" rpy="1.5708 0 3.14"/> <!-- Adjust based on actual position -->
+
+    </joint>
+
+
+
+  <!-- 4305 -->
+  <joint
+    name="motor4305_rev_joint"
+    type="revolute">
+    <origin
+      xyz="0.0255 -0.0395 0"
+      rpy="0 0.032992 1.5708" />
+    <parent
+      link="motor4305_link" />
+    <child
+      link="motor4305_out_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+
+</robot>
