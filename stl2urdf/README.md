@@ -1,3 +1,6 @@
+## Next step
+![](./Robot%20Arm%20Configuration%20Alignment.png)
+
 ## What this folder do
 Based on the predefined URDF, implement converting scratch code with urdfpy and animate it to validate.
 
