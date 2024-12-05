@@ -62,3 +62,9 @@ Size of the hole: 0.025, 0.025, 0.03
 
     </joint>
 ```
+## Create modules and assembly
+1. `create_body_with_stl`: Create modules from stl mesh file
+   1. Import stl file as `timor.mesh` by using `stl_geometry = Mesh({"file": stl_path})`
+   2. Create `timor.Body`
+2. Create `timor.Body` using function from step 1.
+3. Assembly joint from bodies.
