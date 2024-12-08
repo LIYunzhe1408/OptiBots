@@ -10,7 +10,10 @@
             <material name="grey"/>
         </visual>
     </link>
-    <link name="base_out_link" />
+
+    <xacro:property name="robotname" value="base_out_link" />
+    <link name="${robotname}" />
+
     <joint name="base_to_joint1" type="fixed">
         <parent link="base_out_link"/>
         <child link="rod_link_1"/>
