@@ -162,7 +162,7 @@ class Reachability():
         return all_valid_poses
         
         
-    def plot_reachability(self):
+    def plot_reachability(self, filename="reachability_plot.png"):
         # Create a 3D plot
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -181,7 +181,11 @@ class Reachability():
         ax.set_title('3D Reachability Plot')
         ax.legend()
 
-        plt.show()
+        # Save the plot to a file
+        plt.savefig(filename)  # Use plt.savefig instead of plt.show()
+        plt.close(fig) # Close the figure to release memory.  Important when saving many plots
+
+        print(f"Reachability plot saved to {filename}")
         
     def plot_interactive_reachability(self):
         # Convert lists to numpy arrays for easier plotting
@@ -239,12 +243,12 @@ if __name__ == "__main__":
     modules_file = get_module_db_files('geometric_primitive_modules')
     db = ModulesDB.from_json_file(modules_file) 
     
-    how_many_times_to_split_angle_range = 40
+    how_many_times_to_split_angle_range = 30
     world_resolution = 0.01
     world_dimension = [1.00, 1.00, 1.00]
     num_threads = 10
 
-    """
+    
     modules = ('base', 'i_30', 'J2', 'J2', 'J2', 'i_30', 'eef')
     B = ModuleAssembly.from_serial_modules(db, modules)
     long_robot = B.to_pin_robot() #convert to pinocchio robot
@@ -255,11 +259,11 @@ if __name__ == "__main__":
     valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
     print(f"Time to find reachability: {time.time() - start_t} seconds")
     
-    reachability.plot_reachability()
+    reachability.plot_reachability("B_robot_reachability.png")
     percentage = reachability.find_reachibility_percentage()
     print(f"Percentage of reachability: {percentage}%") # TODO i think this is a wrong implementation
-    """
-
+    
+"""
     default_robot = prebuilt_robots.get_six_axis_modrob()
     print(f"Created six axis robot")
         
@@ -269,6 +273,8 @@ if __name__ == "__main__":
     valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
     print(f"Time to find reachability: {time.time() - start_t} seconds")
     
-    reachability.plot_reachability()
+    reachability.plot_reachability("default_robot_reachability.png")
     percentage = reachability.find_reachibility_percentage()
     print(f"Percentage of reachability: {percentage}%")
+    
+    """
