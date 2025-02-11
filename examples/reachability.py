@@ -7,7 +7,10 @@ import matplotlib.pyplot as plt
 from itertools import product
 from mpl_toolkits.mplot3d import Axes3D
 from tqdm import tqdm
+import time
 from pathlib import Path
+
+import threading
 
 class Reachability():
     def __init__(self, robot, task=None, angle_interval=100, world_resolution=0.01):
@@ -24,6 +27,8 @@ class Reachability():
         self.angle_interval = angle_interval
         self.world_res = world_resolution
         self.rounding = int(-math.log10(world_resolution))
+        
+        self.valid_poses = []
         
         
     def check_pose_and_get_gripper(self, theta):
@@ -50,13 +55,48 @@ class Reachability():
         else:
             return None
         
-        
+    
     def find_all_valid_poses(self):
+        """
+        Finds all the valid poses that are reachable by iterating through the robot's joint space.
+
+        Args:
+            robot (timor.Robot.PinRobot): our robot
+            angle_interval (int): how many times do we split the range of angles from 0 to 2pi
+            world_res (float): used to round the valid poses (argument should look like 0.01m)
+            task (timor.task.Task, optional): task containing obstacles. Defaults to None.
+
+        Returns:
+            list[tuple[float, float, float]]: a list containing all valid poses x, y, z in the world space
+        """
+        # Generate all possible combinations of joint angles
+        num_joints = len(self.robot.joints)
+        angles = np.linspace(0, 2 * np.pi, self.angle_interval)
+        all_angles_combo = itertools.product(angles, repeat=num_joints)
+        
+        print(f"Angles = {angles}")
+        
+        # To store all valid poses, multiple joint combos may result in the same end-effector position
+        valid_poses = []
+            
+        for theta in tqdm(list(all_angles_combo), desc="Finding Reachable Workspace"):
+            end_effector_pose = self.check_pose_and_get_gripper(theta)
+            if (end_effector_pose is not None):
+                valid_poses.append(end_effector_pose)
+        
+        self.valid_poses = valid_poses
+        return list(valid_poses)
+        
+        
+    def find_all_valid_poses_multiprocessor_pool(self):
         """Finds all the valid poses (end effector position) that are reachable by 
            iterating through the joint space
 
         Returns:
             list[tuple[float, float, float]]: a list containing all valid poses (x, y, z) in the world space
+        
+        Note: 
+            this does not work because you don't different processes do not have access to shared variables
         """
         # Generate all possible combinations of joint angles
         num_joints = len(self.robot.joints)
@@ -70,14 +110,63 @@ class Reachability():
             
         return list(valid_poses)
         
+    
+    def find_all_valid_poses_multithreading(self, num_threads):
+        """Finds all the valid poses (end effector position) that are reachable by
+           iterating through the joint space (FK)
+           
+        Returns:
+            list[tuple[float, float, float]]: a list containing all valid poses (x, y, z) in the world space
+            
+        if this doesn't work istg
+        """
+        num_joints = len(self.robot.joints)
+        angles = np.linspace(0, 2 * np.pi, self.angle_interval)
+        all_angles_combo = list(product(angles, repeat=num_joints))
+        thetas_work = np.array_split(all_angles_combo, num_threads)
         
-    def plot_reachability(reachable_points):
+        threads = []
+        all_valid_poses = []
+        
+        def thread_function(thetas_group):
+            valid_poses = []
+            
+            for t in thetas_group:
+                g = self.robot.fk(t, collision=True)
+                self_collision = self.robot.has_self_collision()
+                collisions = False if self.task is None else self.robot.has_collisions(self.task, safety_margin=0) # TODO may need to alter safety margin
+                valid_pose = not (collisions or self_collision)
+        
+                if valid_pose:
+                    end_effector_pose = tuple(round(coord, self.rounding) for coord in g[:3, 3].flatten())
+                    valid_poses.append(end_effector_pose)
+            
+            # Only one thread writes to the all_valid_poses at a time
+            with lock:
+                all_valid_poses.extend(valid_poses)
+                
+        lock = threading.Lock()
+        
+        for t in range(num_threads):
+            thread = threading.Thread(target=thread_function, args=(thetas_work[t],))
+            threads.append(thread)
+            thread.start()
+            
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+            
+        self.valid_poses = all_valid_poses
+        return all_valid_poses
+        
+        
+    def plot_reachability(self):
         # Create a 3D plot
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
         # Convert lists to numpy arrays for easier plotting
-        reachable_points = np.array(reachable_points)
+        reachable_points = np.array(self.valid_poses)
 
         # Plot reachable points in green
         if len(reachable_points) > 0:
@@ -92,9 +181,9 @@ class Reachability():
 
         plt.show()
         
-    def plot_interactive_reachability(reachable_points):
+    def plot_interactive_reachability(self):
         # Convert lists to numpy arrays for easier plotting
-        reachable_points = np.array(reachable_points)
+        reachable_points = np.array(self.valid_poses)
 
         # Create a 3D scatter plot with Plotly
         fig = go.Figure()
@@ -153,9 +242,15 @@ if __name__ == "__main__":
     long_robot = B.to_pin_robot() #convert to pinocchio robot
     viz = long_robot.visualize()
 
-    how_many_times_to_split_angle_range = 100
+    how_many_times_to_split_angle_range = 40
     world_resolution = 0.01
     world_dimension = [1.00, 1.00, 1.00]
+    num_threads = 5
     
     reachability = Reachability(robot=long_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
-    valid_poses = reachability.find_all_valid_poses()
+    
+    start_t = time.time()
+    valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
+    print(f"Time to find reachability: {time.time() - start_t} seconds")
+    
+    reachability.plot_reachability()
