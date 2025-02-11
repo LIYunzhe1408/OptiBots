@@ -1,4 +1,4 @@
-name: timor-env2
+name: urdf-env
 
 channels:
   - conda-forge
@@ -12,3 +12,4 @@ dependencies:
     - timor-python[full]
     - jupyterlab
     - ipykernel
+    - urdfpy
