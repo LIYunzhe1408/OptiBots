@@ -11,6 +11,8 @@ import time
 from pathlib import Path
 
 import threading
+from timor.utilities import prebuilt_robots
+
 
 class Reachability():
     def __init__(self, robot, task=None, angle_interval=100, world_resolution=0.01):
@@ -131,7 +133,7 @@ class Reachability():
         def thread_function(thetas_group):
             valid_poses = []
             
-            for t in thetas_group:
+            for t in tqdm(thetas_group):
                 g = self.robot.fk(t, collision=True)
                 self_collision = self.robot.has_self_collision()
                 collisions = False if self.task is None else self.robot.has_collisions(self.task, safety_margin=0) # TODO may need to alter safety margin
@@ -211,7 +213,7 @@ class Reachability():
 
         fig.show()
         
-    def find_reachibility_percentage(valid_poses, world_dim = [1.00, 1.00, 1.00], world_res = 0.01):
+    def find_reachibility_percentage(self, world_dim = [1.00, 1.00, 1.00], world_res = 0.01):
         """Calculate the percentage of the world space that is reachable by our robot configuration.
 
         Args:
@@ -225,7 +227,7 @@ class Reachability():
         """
         total_cubes = (world_dim[0] / world_res) * (world_dim[1] / world_res) * (world_dim[2] / world_res)
         print("total cubes", total_cubes)
-        reachable_count = len(valid_poses)
+        reachable_count = len(self.valid_poses)
         print("reachable count: ", reachable_count)
         return round((reachable_count / total_cubes) * 100, 2)
         
@@ -236,17 +238,17 @@ if __name__ == "__main__":
     from timor.utilities.file_locations import get_module_db_files
     modules_file = get_module_db_files('geometric_primitive_modules')
     db = ModulesDB.from_json_file(modules_file) 
+    
+    how_many_times_to_split_angle_range = 40
+    world_resolution = 0.01
+    world_dimension = [1.00, 1.00, 1.00]
+    num_threads = 10
 
+    """
     modules = ('base', 'i_30', 'J2', 'J2', 'J2', 'i_30', 'eef')
     B = ModuleAssembly.from_serial_modules(db, modules)
     long_robot = B.to_pin_robot() #convert to pinocchio robot
     viz = long_robot.visualize()
-
-    how_many_times_to_split_angle_range = 40
-    world_resolution = 0.01
-    world_dimension = [1.00, 1.00, 1.00]
-    num_threads = 5
-    
     reachability = Reachability(robot=long_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
     
     start_t = time.time()
@@ -254,3 +256,19 @@ if __name__ == "__main__":
     print(f"Time to find reachability: {time.time() - start_t} seconds")
     
     reachability.plot_reachability()
+    percentage = reachability.find_reachibility_percentage()
+    print(f"Percentage of reachability: {percentage}%") # TODO i think this is a wrong implementation
+    """
+
+    default_robot = prebuilt_robots.get_six_axis_modrob()
+    print(f"Created six axis robot")
+        
+    reachability = Reachability(robot=default_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
+    
+    start_t = time.time()
+    valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
+    print(f"Time to find reachability: {time.time() - start_t} seconds")
+    
+    reachability.plot_reachability()
+    percentage = reachability.find_reachibility_percentage()
+    print(f"Percentage of reachability: {percentage}%")
