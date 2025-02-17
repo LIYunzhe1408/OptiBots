@@ -9,6 +9,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from tqdm import tqdm
 import time
 from pathlib import Path
+import pickle
+import plotly.graph_objects as go # interactive graphs
+
 
 import threading
 from timor.utilities import prebuilt_robots
@@ -46,6 +49,7 @@ class Reachability():
         Note:
             TODO: need to include RRT check
         """
+        robot = self.robot
         g = self.robot.fk(theta, collision=True)
         self_collision = self.robot.has_self_collision()
         collisions = False if self.task is None else self.robot.has_collisions(self.task, safety_margin=0) # TODO may need to alter safety margin
@@ -122,6 +126,7 @@ class Reachability():
             
         if this doesn't work istg
         """
+        print("hi")
         num_joints = len(self.robot.joints)
         angles = np.linspace(0, 2 * np.pi, self.angle_interval)
         all_angles_combo = list(product(angles, repeat=num_joints))
@@ -130,12 +135,25 @@ class Reachability():
         threads = []
         all_valid_poses = []
         
+        print("hello")
+        
+        def simplified_fk(robot, thetas):
+            T = np.eye(4)
+            for joint, theta in zip(robot.joints, thetas):
+                R = joint.get_rotation_matrix(theta)
+                p = joint.translation
+                T_joint = np.block([[R, p.reshape(3, 1)],
+                                    [np.zeros(3), 1]])
+                T = T @ T_joint
+            return T[:3, 3]  # Return only the position vector
+        
         def thread_function(thetas_group):
             valid_poses = []
             
             for t in tqdm(thetas_group):
-                g = self.robot.fk(t, collision=True)
-                self_collision = self.robot.has_self_collision()
+                g = simplified_fk(self.robot.joints, t)
+                # self_collision = self.robot.has_self_collision()
+                self_collision = False
                 collisions = False if self.task is None else self.robot.has_collisions(self.task, safety_margin=0) # TODO may need to alter safety margin
                 valid_pose = not (collisions or self_collision)
         
@@ -149,10 +167,15 @@ class Reachability():
                 
         lock = threading.Lock()
         
+        print("hola")
+        
         for t in range(num_threads):
+            print(f"{t} thread created")
             thread = threading.Thread(target=thread_function, args=(thetas_work[t],))
             threads.append(thread)
             thread.start()
+            
+        print("Waiting for threads")
             
         # Wait for all threads to complete
         for thread in threads:
@@ -182,8 +205,8 @@ class Reachability():
         ax.legend()
 
         # Save the plot to a file
-        plt.savefig(filename)  # Use plt.savefig instead of plt.show()
-        plt.close(fig) # Close the figure to release memory.  Important when saving many plots
+        plt.savefig(filename)  
+        plt.close(fig) 
 
         print(f"Reachability plot saved to {filename}")
         
@@ -217,6 +240,60 @@ class Reachability():
 
         fig.show()
         
+    def reachability_random_sample(self, num_samples):
+        """Reachable points with their manipulability index."""
+        reachable_points = set()
+
+        for _ in tqdm(range(num_samples)):
+            q = self.robot.random_configuration()
+            
+            if not self.robot.has_self_collision(q):
+                tcp_pose = self.robot.fk(q)
+                end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
+                
+                # Compute the Yoshikawa manipulability index
+                # High Yoshikawa manipulability index values indicate that the robot has good dexterity 
+                # and can move in multiple directions from the corresponding configurations. 
+                # Low manipulability index values indicate that corresponding configurations are less 
+                # dexterous and more susceptible to singularities.
+                manipulability_idk = self.robot.manipulability_index(q)
+                reachable_points.add((end_effector_pose, manipulability_idk))  
+                
+        return list(reachable_points)
+    
+    
+    def plot_interactive_reachability_with_manipulability(self, reachable, manipulability):
+        # Create the 3D scatter plot
+        fig = go.Figure(data=[go.Scatter3d(
+            x=reachable[:, 0],
+            y=reachable[:, 1],
+            z=reachable[:, 2],
+            mode='markers',
+            marker=dict(
+                size=5,
+                color=manipulability,
+                colorscale='viridis',
+                opacity=0.8,
+                colorbar=dict(title='Manipulability Index')
+            ),
+            hovertext=[f'Manipulability: {m:.3f}' for m in manipulability],
+            hoverinfo='text'
+        )])
+
+        # Update the layout
+        fig.update_layout(
+            scene=dict(
+                xaxis_title='X',
+                yaxis_title='Y',
+                zaxis_title='Z'
+            ),
+            title='Robot Reachability Space with Manipulability Index'
+        )
+
+        # Show the interactive plot
+        fig.show()
+        
+        
     def find_reachibility_percentage(self, world_dim = [1.00, 1.00, 1.00], world_res = 0.01):
         """Calculate the percentage of the world space that is reachable by our robot configuration.
 
@@ -246,35 +323,46 @@ if __name__ == "__main__":
     how_many_times_to_split_angle_range = 30
     world_resolution = 0.01
     world_dimension = [1.00, 1.00, 1.00]
-    num_threads = 10
+    num_threads = 5
 
-    
+
+    ## 3 AXIS ROBOT
     modules = ('base', 'i_30', 'J2', 'J2', 'J2', 'i_30', 'eef')
     B = ModuleAssembly.from_serial_modules(db, modules)
     long_robot = B.to_pin_robot() #convert to pinocchio robot
-    viz = long_robot.visualize()
+    # viz = long_robot.visualize()
     reachability = Reachability(robot=long_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
     
     start_t = time.time()
-    valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
+    valid_poses = reachability.reachability_random_sample(num_samples = 100000)
+    # valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
     print(f"Time to find reachability: {time.time() - start_t} seconds")
     
-    reachability.plot_reachability("B_robot_reachability.png")
-    percentage = reachability.find_reachibility_percentage()
-    print(f"Percentage of reachability: {percentage}%") # TODO i think this is a wrong implementation
+    # reachability.plot_reachability("B_robot_reachability.png")
+    # percentage = reachability.find_reachibility_percentage()
+    # print(f"Percentage of reachability: {percentage}%") # TODO i think this is a wrong implementation
+ 
+    reachable, manipulability =  zip(*valid_poses)
+    reachable = np.array([list(pt) for pt in reachable])
+    reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
     
-"""
+    
+    
+ 
+
+    # 6 AXIS ROBOT
     default_robot = prebuilt_robots.get_six_axis_modrob()
-    print(f"Created six axis robot")
-        
     reachability = Reachability(robot=default_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
     
     start_t = time.time()
-    valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
+    valid_poses = reachability.reachability_random_sample(num_samples = 100000)
+    # valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
     print(f"Time to find reachability: {time.time() - start_t} seconds")
     
-    reachability.plot_reachability("default_robot_reachability.png")
-    percentage = reachability.find_reachibility_percentage()
-    print(f"Percentage of reachability: {percentage}%")
+    reachable, manipulability =  zip(*valid_poses)
+    reachable = np.array([list(pt) for pt in reachable])
+    reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
     
-    """
+    # percentage = reachability.find_reachibility_percentage()
+    # print(f"Percentage of reachability: {percentage}%")
+    
