@@ -17,6 +17,12 @@ from timor.utilities.spatial import rotX, rotY, rotZ
 from util import generate_header, read_rod_trans
 
 ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+ROT_Z = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
+ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
+
+ROT_X_90 = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
+ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
+ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
 DIAMETER = 80 / 1000
 
 def create_eef() -> ModulesDB:
@@ -199,27 +205,30 @@ def create_revolute_joint(urdf_path) -> ModulesDB:
     r_p, p_p = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in proximal_origin['xyz'].split(" ")], [float(x) for x in proximal_origin['rpy'].split(" ")])
     r_d, p_d = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in distal_origin['xyz'].split(" ")], [float(x) for x in distal_origin['rpy'].split(" ")])
     c_type = 'base' if  joint['name'] == 'base_rev_joint' else 'default'
-        
+    
+    print([float(x) for x in proximal_origin['xyz'].split(" ")])
     proximal_connector = Connector(
                                     connector_id=proximal_name+"connector",
-                                    body2connector=Transformation.from_roto_translation(
-                                                    R=rpy_to_rotation_matrix(np.array([0,0, 0])),       
-                                                    #R=r_p,
-                                                    p=np.array([0, -0.0, 0]),
-                                                    #p=p_p,
-                                    ),
+                                    # body2connector=Transformation.from_roto_translation(
+                                    #                 R=ROT_X,       
+                                    #                 #R=r_p,
+                                    #                 p=np.array([float(x) for x in proximal_origin['xyz'].split(" ")]),
+                                    #                 #p=p_p,
+                                    # ),
+                                    body2connector = Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
                                     gender=Gender.f,
                                     connector_type=c_type,
                                     size=[diameter, diameter]
         )
     distal_connector = Connector(
                                     connector_id=distal_name+"connector",
-                                    body2connector=Transformation.from_roto_translation(
-                                                    R=rpy_to_rotation_matrix(np.array([0,0, 0])),
-                                                    p=np.array([0, -0.0, 0]),            
-                                                    # R=r_d,
-                                                    # p=p_d
-                                    ),
+                                    # body2connector=Transformation.from_roto_translation(
+                                    #                 R=rpy_to_rotation_matrix(np.array([0,0, 0])),
+                                    #                 p=np.array([0, -0.0, 0]),            
+                                    #                 # R=r_d,
+                                    #                 # p=p_d
+                                    # ),
+                                    body2connector = Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]) if c_type == 'base' else Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
                                     gender=Gender.m, #if not eef else Gender.h,
                                     connector_type='default',
                                     size=[diameter, diameter]
@@ -252,6 +261,10 @@ def create_revolute_joint(urdf_path) -> ModulesDB:
                                                     R=rpy_to_rotation_matrix([float(x) for x in joint['origin']['xyz'].split(" ")]),
                                                     p=np.array([0, -0.0, 0])
                                 )
+        # parent2joint=Transformation.from_translation([float(x) for x in proximal_origin['xyz'].split(" ")]),
+        # joint2child=Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
+        #parent2joint=Transformation.from_translation([0,0,0.5]),
+        #joint2child=Transformation.from_translation([0,0,0]),
     )
     return AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
     return ModulesDB({

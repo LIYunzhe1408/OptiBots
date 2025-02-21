@@ -9,6 +9,7 @@ from tqdm import tqdm
 from timor import ModuleAssembly, ModulesDB
 from timor.configuration_search.GA import GA
 from timor.utilities.visualization import MeshcatVisualizer, clear_visualizer
+from timor.utilities.dtypes import Lexicographic
 import argparse
 import pygad
 
@@ -127,6 +128,8 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
     """
     #TODO - include reachability metric and max weight calculations in this fitness function
 
+    if assembly.nJoints != 3:
+        return -10000
     #this function is an example function.
     return Lexicographic(reachability_metric(assembly), len(assembly.module_instances), -assembly.mass)
 

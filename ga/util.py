@@ -21,26 +21,28 @@ def generate_header(header_id, header_name):
                         )
 
 def read_rod_trans(rod_name, length, diameter):
-    if rod_name == "baseto4310":
-        ROT_X = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
-        return [ROT_X @ Transformation.from_translation([0, length/2, 0]), Transformation.from_translation([0, 0, 0.077])]
-    elif rod_name == "r4310to4305":
-        ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
-        ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
-        ROT_Y = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
-        config_1 = [Transformation.from_translation([0, 0, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
-        config_2 = [ROT_Y @ Transformation.from_translation([0, length/2, 0]), ROT_Y @ Transformation.from_translation([0, -length/2+diameter/2, 0])]
-        return config_2
-    elif rod_name == "r4310to4310":
-        ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
-        ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
-        ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
-        ROT_Z_N90 = Transformation.from_rotation(rotZ(-np.pi/2)[:3, :3])
-        ROT_Y = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
-        ROT_Y_180 = Transformation.from_rotation(rotX(np.pi)[:3, :3])
-        config_1 = [ROT_Z_180 @ ROT_Y @ Transformation.from_translation([0, length/2-diameter/2, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
-        config_2 = [ROT_Z_90 @ ROT_X_90 @ ROT_Y_180 @ Transformation.from_translation([0, length/2-diameter/2, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
-        return config_1
+    ROT_X = Transformation.from_rotation(rotX(-np.pi)[:3, :3])
+    return [ROT_X @ Transformation.from_translation([0, 0, length / 2]), Transformation.from_translation([0, 0, length / 2])]
+    # if rod_name == "baseto4310":
+    #     ROT_X = Transformation.from_rotation(rotX(-np.pi)[:3, :3])
+    #     return [ROT_X @ Transformation.from_translation([0, 0, length / 2]), Transformation.from_translation([0, 0, length / 2])]
+    # elif rod_name == "r4310to4305":
+    #     ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
+    #     ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
+    #     ROT_Y = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
+    #     config_1 = [Transformation.from_translation([0, 0, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
+    #     config_2 = [ROT_Y @ Transformation.from_translation([0, length/2, 0]), ROT_Y @ Transformation.from_translation([0, -length/2+diameter/2, 0])]
+    #     return config_2
+    # elif rod_name == "r4310to4310":
+    #     ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
+    #     ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
+    #     ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
+    #     ROT_Z_N90 = Transformation.from_rotation(rotZ(-np.pi/2)[:3, :3])
+    #     ROT_Y = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
+    #     ROT_Y_180 = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+    #     config_1 = [ROT_Z_180 @ ROT_Y @ Transformation.from_translation([0, length/2-diameter/2, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
+    #     config_2 = [ROT_Z_90 @ ROT_X_90 @ ROT_Y_180 @ Transformation.from_translation([0, length/2-diameter/2, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
+    #     return config_1
 
 def square_rod_mass(l: float, side: float, side_inner: float = 0) -> float:
     """
