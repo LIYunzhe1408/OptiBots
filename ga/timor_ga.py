@@ -44,8 +44,8 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
     """
     #TODO - include reachability metric and max weight calculations in this fitness function
 
-    if assembly.nJoints != 5:
-        return -1000
+    # if assembly.nJoints != 3:
+    #     return -1000
     reachability = Reachability(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
     valid_poses = reachability.reachability_random_sample(num_samples = 100000)
     reachable_space = reachability.find_reachibility_percentage(world_dim=world_dimension, world_res=world_resolution)

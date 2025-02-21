@@ -70,7 +70,7 @@ def create_connectors_for_link(length, diameter, trans):
         connectors.append(Connector(
             f'{int(diameter * 100)}-{i}', 
             trans[i],
-            gender=Gender.f if i == 0 else Gender.m,
+            gender=Gender.m if i == 0 else Gender.f,
             connector_type='default', 
             size=[diameter, diameter]))
     return connectors
@@ -151,38 +151,15 @@ def base(urdf_path) -> ModulesDB:
     #                             email=['jonathan.kuelz@tum.de'], affiliation=['Technical University of Munich']),
     #                 [Body('base', collision=c_body, connectors=[c_world, c_robot])])
     # })
-    
-def create_revolute_joint(urdf_path) -> ModulesDB:
-    """Creates an L-shaped joint"""
+def create_revolute_joint(urdf_path: str):
     dir_name = urdf_path.split('/')[1]
     urdf_dict = urdf_to_dict(urdf_path)
     joint = urdf_dict['robot']['joint']
     proximal_name = joint['parent']['link']
     distal_name = joint['child']['link']
     links = urdf_dict['robot']['link']
-    directory_path = os.path.dirname(urdf_path)
+
     
-    # for link in links:
-    #     if link['name'] == proximal_name:
-    #         proximal_serialized_geometry = {
-    #             "type": "mesh",  # Type of geometry
-    #             "parameters": {
-    #                 "file": link['collision']['geometry']['mesh']['filename']  # Path to the STL file
-    #             }
-    #         }
-    #         proximal_body = Geometry.from_json_data([proximal_serialized_geometry], directory_path)
-    #         proximal_inertial = link['inertial']
-    #         proximal_origin = link['collision']['origin']
-    #     elif link['name'] == distal_name:
-    #         distal_serialized_geometry = {
-    #             "type": "mesh",  # Type of geometry
-    #             "parameters": {
-    #                 "file": link['collision']['geometry']['mesh']['filename']  # Path to the STL file
-    #             }
-    #         }
-    #         distal_body = Geometry.from_json_data([distal_serialized_geometry], directory_path)
-    #         distal_inertial = link['inertial']
-    #         distal_origin = link['collision']['origin']
     for link in links:
         link_name = link['name']
         stl_path = link['collision']['geometry']['mesh']['filename']
@@ -195,41 +172,38 @@ def create_revolute_joint(urdf_path) -> ModulesDB:
             distal_inertial = link['inertial']
             distal_origin = link['collision']['origin']
             distal_geometry = Mesh({"file": assets_path})
-
-    length = 150 / 1000
-    diameter = 25 / 1000
-    # proximal_body = ComposedGeometry((Cylinder({'r': diameter / 2, 'z': length}),
-    #                                 Sphere({'r': diameter / 2}, pose=Transformation.from_translation([0, 0, length / 2])))
-    #                                 )
-    # distal_body = Cylinder({'r': diameter / 2, 'z': 150 / 1000})
-    r_p, p_p = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in proximal_origin['xyz'].split(" ")], [float(x) for x in proximal_origin['rpy'].split(" ")])
-    r_d, p_d = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in distal_origin['xyz'].split(" ")], [float(x) for x in distal_origin['rpy'].split(" ")])
-    c_type = 'base' if  joint['name'] == 'base_rev_joint' else 'default'
     
-    print([float(x) for x in proximal_origin['xyz'].split(" ")])
+    
+
+    diameter = 25 / 1000
+    # r_p, p_p = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in proximal_origin['xyz'].split(" ")], [float(x) for x in proximal_origin['rpy'].split(" ")])
+    # r_d, p_d = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in distal_origin['xyz'].split(" ")], [float(x) for x in distal_origin['rpy'].split(" ")])
+    
+    # ROT_X = Transformation.from_rotation(-rotX(np.pi/2)[:3, :3])
+    # ROT_Y = Transformation.from_rotation(rotY(-np.pi)[:3, :3])
+    c_type = 'base' if  joint['name'] == 'base_rev_joint' else 'default'
+        
     proximal_connector = Connector(
                                     connector_id=proximal_name+"connector",
-                                    # body2connector=Transformation.from_roto_translation(
-                                    #                 R=ROT_X,       
-                                    #                 #R=r_p,
-                                    #                 p=np.array([float(x) for x in proximal_origin['xyz'].split(" ")]),
-                                    #                 #p=p_p,
-                                    # ),
-                                    body2connector = Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
+                                    body2connector=Transformation.from_roto_translation(
+                                                    R=rpy_to_rotation_matrix(np.array([0,0, 0])),       
+                                                    # R=r_p,
+                                                    p=np.array([0, -0.0, 0]),
+                                                    # p=p_p
+                                    ),
                                     gender=Gender.f,
                                     connector_type=c_type,
                                     size=[diameter, diameter]
         )
     distal_connector = Connector(
                                     connector_id=distal_name+"connector",
-                                    # body2connector=Transformation.from_roto_translation(
-                                    #                 R=rpy_to_rotation_matrix(np.array([0,0, 0])),
-                                    #                 p=np.array([0, -0.0, 0]),            
-                                    #                 # R=r_d,
-                                    #                 # p=p_d
-                                    # ),
-                                    body2connector = Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]) if c_type == 'base' else Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
-                                    gender=Gender.m, #if not eef else Gender.h,
+                                    body2connector=Transformation.from_roto_translation(
+                                                    R=rpy_to_rotation_matrix(np.array([0,0, 0])),
+                                                    p=np.array([0, -0.0, 0]),            
+                                                    # R=r_d,
+                                                    # p=p_d
+                                    ),
+                                    gender=Gender.m,
                                     connector_type='default',
                                     size=[diameter, diameter]
                                     
@@ -243,7 +217,7 @@ def create_revolute_joint(urdf_path) -> ModulesDB:
                     connectors=[distal_connector],
                     inertia=create_inertia(distal_inertial)
                     )
-    
+
     r_joint = Joint(
         joint_id=joint['name'],
         joint_type=joint['type'],
@@ -258,18 +232,134 @@ def create_revolute_joint(urdf_path) -> ModulesDB:
                                                     p=joint['origin']['xyz'].split(" ")
                                 ),
         joint2child=Transformation.from_roto_translation(
-                                                    R=rpy_to_rotation_matrix([float(x) for x in joint['origin']['xyz'].split(" ")]),
+                                                    R=rpy_to_rotation_matrix(np.array([0, 0, 0])),
                                                     p=np.array([0, -0.0, 0])
                                 )
-        # parent2joint=Transformation.from_translation([float(x) for x in proximal_origin['xyz'].split(" ")]),
-        # joint2child=Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
-        #parent2joint=Transformation.from_translation([0,0,0.5]),
-        #joint2child=Transformation.from_translation([0,0,0]),
     )
+    
     return AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
     return ModulesDB({
-        AtomicModule(module_header, [proximal, distal], [r_joint])
-    })
+            AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
+            # AtomicModule(generate_header(joint['name'], "R"), [proximal])
+        })
+# def create_revolute_joint(urdf_path) -> ModulesDB:
+#     """Creates an L-shaped joint"""
+#     dir_name = urdf_path.split('/')[1]
+#     urdf_dict = urdf_to_dict(urdf_path)
+#     joint = urdf_dict['robot']['joint']
+#     proximal_name = joint['parent']['link']
+#     distal_name = joint['child']['link']
+#     links = urdf_dict['robot']['link']
+#     directory_path = os.path.dirname(urdf_path)
+    
+#     # for link in links:
+#     #     if link['name'] == proximal_name:
+#     #         proximal_serialized_geometry = {
+#     #             "type": "mesh",  # Type of geometry
+#     #             "parameters": {
+#     #                 "file": link['collision']['geometry']['mesh']['filename']  # Path to the STL file
+#     #             }
+#     #         }
+#     #         proximal_body = Geometry.from_json_data([proximal_serialized_geometry], directory_path)
+#     #         proximal_inertial = link['inertial']
+#     #         proximal_origin = link['collision']['origin']
+#     #     elif link['name'] == distal_name:
+#     #         distal_serialized_geometry = {
+#     #             "type": "mesh",  # Type of geometry
+#     #             "parameters": {
+#     #                 "file": link['collision']['geometry']['mesh']['filename']  # Path to the STL file
+#     #             }
+#     #         }
+#     #         distal_body = Geometry.from_json_data([distal_serialized_geometry], directory_path)
+#     #         distal_inertial = link['inertial']
+#     #         distal_origin = link['collision']['origin']
+#     for link in links:
+#         link_name = link['name']
+#         stl_path = link['collision']['geometry']['mesh']['filename']
+#         assets_path = os.path.join("assets", dir_name, dir_name, stl_path.split('/')[1], stl_path.split('/')[2])
+#         if link_name == proximal_name:
+#             proximal_inertial = link['inertial']
+#             proximal_origin = link['collision']['origin']
+#             proximal_geometry = Mesh({"file": assets_path})
+#         elif link_name == distal_name:
+#             distal_inertial = link['inertial']
+#             distal_origin = link['collision']['origin']
+#             distal_geometry = Mesh({"file": assets_path})
+
+#     length = 150 / 1000
+#     diameter = 25 / 1000
+#     # proximal_body = ComposedGeometry((Cylinder({'r': diameter / 2, 'z': length}),
+#     #                                 Sphere({'r': diameter / 2}, pose=Transformation.from_translation([0, 0, length / 2])))
+#     #                                 )
+#     # distal_body = Cylinder({'r': diameter / 2, 'z': 150 / 1000})
+#     r_p, p_p = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in proximal_origin['xyz'].split(" ")], [float(x) for x in proximal_origin['rpy'].split(" ")])
+#     r_d, p_d = body2connector_helper([float(x) for x in joint['origin']['xyz'].split(" ")], [float(x) for x in joint['origin']['rpy'].split(" ")], [float(x) for x in distal_origin['xyz'].split(" ")], [float(x) for x in distal_origin['rpy'].split(" ")])
+#     c_type = 'base' if  joint['name'] == 'base_rev_joint' else 'default'
+    
+#     print([float(x) for x in proximal_origin['xyz'].split(" ")])
+#     proximal_connector = Connector(
+#                                     connector_id=proximal_name+"connector",
+#                                     # body2connector=Transformation.from_roto_translation(
+#                                     #                 R=ROT_X,       
+#                                     #                 #R=r_p,
+#                                     #                 p=np.array([float(x) for x in proximal_origin['xyz'].split(" ")]),
+#                                     #                 #p=p_p,
+#                                     # ),
+#                                     body2connector = Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
+#                                     gender=Gender.f,
+#                                     connector_type=c_type,
+#                                     size=[diameter, diameter]
+#         )
+#     distal_connector = Connector(
+#                                     connector_id=distal_name+"connector",
+#                                     # body2connector=Transformation.from_roto_translation(
+#                                     #                 R=rpy_to_rotation_matrix(np.array([0,0, 0])),
+#                                     #                 p=np.array([0, -0.0, 0]),            
+#                                     #                 # R=r_d,
+#                                     #                 # p=p_d
+#                                     # ),
+#                                     body2connector = Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]) if c_type == 'base' else Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
+#                                     gender=Gender.m, #if not eef else Gender.h,
+#                                     connector_type='default',
+#                                     size=[diameter, diameter]
+                                    
+#         )            
+    
+#     proximal = Body(proximal_name, collision=proximal_geometry,
+#                     connectors=[proximal_connector],
+#                     inertia=create_inertia(proximal_inertial)
+#                     )
+#     distal = Body(distal_name, collision=distal_geometry,
+#                     connectors=[distal_connector],
+#                     inertia=create_inertia(distal_inertial)
+#                     )
+    
+#     r_joint = Joint(
+#         joint_id=joint['name'],
+#         joint_type=joint['type'],
+#         parent_body=proximal,
+#         child_body=distal,
+#         q_limits=np.array([-np.pi, np.pi]),
+#         torque_limit=1000,
+#         acceleration_limit=5,
+#         velocity_limit=10,
+#         parent2joint=Transformation.from_roto_translation(
+#                                                     R=rpy_to_rotation_matrix([float(x) for x in joint['origin']['rpy'].split(" ")]),
+#                                                     p=joint['origin']['xyz'].split(" ")
+#                                 ),
+#         joint2child=Transformation.from_roto_translation(
+#                                                     R=rpy_to_rotation_matrix([float(x) for x in joint['origin']['xyz'].split(" ")]),
+#                                                     p=np.array([0, -0.0, 0])
+#                                 )
+#         #parent2joint=Transformation.from_translation([float(x) for x in proximal_origin['xyz'].split(" ")]),
+#         #joint2child=Transformation.from_translation([float(x) for x in distal_origin['xyz'].split(" ")]),
+#         #parent2joint=Transformation.from_translation([0,0,0.5]),
+#         #joint2child=Transformation.from_translation([0,0,0]),
+#     )
+#     return AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
+#     return ModulesDB({
+#         AtomicModule(module_header, [proximal, distal], [r_joint])
+#     })
 if __name__ == "__main__":
     print("hello")
     # urdf_file = "assets/Assem_4305_JOINT/Assem_4305_JOINT/urdf/Assem_4305_JOINT.urdf"
