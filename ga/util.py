@@ -204,7 +204,7 @@ def read_rod_trans(rod_name, length, diameter):
         ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
         ROT_Y = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
         config_1 = [Transformation.from_translation([0, 0, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
-        config_2 = [ROT_Y @ Transformation.from_translation([0, length/2, 0]), ROT_Y @ Transformation.from_translation([0, -length/2+diameter/2, 0])]
+        config_2 = [ROT_Y @ Transformation.from_translation([0, length/2, 0]), ROT_Y @ Transformation.from_translation([0, -length/2 - diameter/2, 0])] # ROT_Y @ Transformation.from_translation([0, -length/2+diameter/2, 0])
         return config_2
     elif rod_name == "r4310to4310":
         ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
