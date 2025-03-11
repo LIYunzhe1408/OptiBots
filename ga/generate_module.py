@@ -27,8 +27,9 @@ DIAMETER = 80 / 1000
 
 def create_eef() -> ModulesDB:
     """Creates a simplified end effector module."""
-    geometry = Sphere({'r': DIAMETER / 5}, pose=Transformation.from_translation([0, 0, DIAMETER / 2]))
-    c_robot = Connector('robot2eef', ROT_X, gender=Gender.f, connector_type='default', size=[25 / 1000, 25 / 1000])
+    geometry = Sphere({'r': DIAMETER / 4}, pose=Transformation.from_translation([0, 0, DIAMETER / 2]))
+    c_robot = Connector('robot2eef', gender=Gender.f, connector_type='default', size=[25 / 1000, 25 / 1000],
+                        body2connector=ROT_X @ Transformation.from_translation([0, -DIAMETER / 3, -DIAMETER / 2]))
     c_world = Connector('end-effector', gender=Gender.m, connector_type='eef', size=[None,None],
                         body2connector=Transformation.from_translation([0, 0, DIAMETER / 2]))
     return ModulesDB({

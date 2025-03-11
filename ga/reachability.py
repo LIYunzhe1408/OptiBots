@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 import pickle
 import plotly.graph_objects as go # interactive graphs
+from math import ceil
 
 
 import threading
@@ -18,7 +19,7 @@ from timor.utilities import prebuilt_robots
 
 
 class Reachability():
-    def __init__(self, robot, task=None, angle_interval=100, world_resolution=0.01):
+    def __init__(self, robot, task = None, angle_interval = 20, world_dimension = [1.0, 1.0, 1.0], world_resolution = 0.01):
         """Construct a reachability object
 
         Args:
@@ -30,6 +31,7 @@ class Reachability():
         self.robot = robot
         self.task = task
         self.angle_interval = angle_interval
+        self.world_dim = world_dimension
         self.world_res = world_resolution
         self.rounding = int(-math.log10(world_resolution))
         
@@ -85,7 +87,7 @@ class Reachability():
         # To store all valid poses, multiple joint combos may result in the same end-effector position
         valid_poses = []
             
-        for theta in tqdm(list(all_angles_combo), desc="Finding Reachable Workspace"):
+        for theta in tqdm(list(all_angles_combo), desc="Finding Reachable Workspace", disable=True):
             end_effector_pose = self.check_pose_and_get_gripper(theta)
             if (end_effector_pose is not None):
                 valid_poses.append(end_effector_pose)
@@ -185,14 +187,17 @@ class Reachability():
         return all_valid_poses
         
         
-    def plot_reachability(self, filename="reachability_plot.png"):
+    def plot_reachability(self, reachable = None, filename="reachability_plot.png"):
         # Create a 3D plot
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
         # Convert lists to numpy arrays for easier plotting
-        reachable_points = np.array(self.valid_poses)
-
+        if (type(reachable) == None):
+            reachable_points = np.array(self.valid_poses)
+        else:
+            reachable_points = np.array(reachable)
+        
         # Plot reachable points in green
         if len(reachable_points) > 0:
             ax.scatter(reachable_points[:, 0], reachable_points[:, 1], reachable_points[:, 2], color='green', label='Reachable', s=5)
@@ -210,9 +215,13 @@ class Reachability():
 
         print(f"Reachability plot saved to {filename}")
         
-    def plot_interactive_reachability(self):
+    def plot_interactive_reachability(self, reachable = None):
         # Convert lists to numpy arrays for easier plotting
-        reachable_points = np.array(self.valid_poses)
+                # Convert lists to numpy arrays for easier plotting
+        if (type(reachable) == None):
+            reachable_points = np.array(self.valid_poses)
+        else:
+            reachable_points = np.array(reachable)
 
         # Create a 3D scatter plot with Plotly
         fig = go.Figure()
@@ -244,10 +253,12 @@ class Reachability():
         """Reachable points with their manipulability index."""
         reachable_points = set()
 
-        for _ in tqdm(range(num_samples)):
+        for _ in tqdm(range(num_samples), disable=True):
             q = self.robot.random_configuration()
             
             if not self.robot.has_self_collision(q):
+                if self.task is not None and self.robot.has_collisions(self.task, safety_margin=0):
+                    continue
                 tcp_pose = self.robot.fk(q)
                 end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
                 
@@ -294,23 +305,50 @@ class Reachability():
         fig.show()
         
         
-    def find_reachibility_percentage(self, world_dim = [1.00, 1.00, 1.00], world_res = 0.01):
+    def find_reachibility_percentage(self, voxel_size = 0.1, valid_pose = None):
         """Calculate the percentage of the world space that is reachable by our robot configuration.
 
         Args:
-            valid_poses (list[tuple[float, float, float]]): list of (x,y,z) poses that the end effector can reach.
-                We assume that the poses are rounded to the world_resolution!
-            world_dim (list[float, float, float]): _description_
-            world_res (float): how much to split the world (eg, 0.01m increments)
+            valid_poses ndarray of (3, ): (x,y,z) poses that the end effector can reach
+            voxel_size (float): used to split the space
 
         Returns:
-            float: percentage of world space that is reachable
+            float: percentage of world space that is reachable (occupied voxels / total voxels)
         """
-        total_cubes = (world_dim[0] / world_res) * (world_dim[1] / world_res) * (world_dim[2] / world_res)
-        print("total cubes", total_cubes)
-        reachable_count = len(self.valid_poses)
-        print("reachable count: ", reachable_count)
-        return round((reachable_count / total_cubes) * 100, 2)
+        voxel_x = ceil(self.world_dim[0] / voxel_size)
+        voxel_y = ceil(self.world_dim[1] / voxel_size)
+        voxel_z = ceil(self.world_dim[2] / voxel_size)
+        voxel_grid = np.zeros((voxel_x, voxel_y, voxel_z), dtype = bool)
+            
+        for x, y, z in valid_pose: 
+            vx = int( (x / voxel_size) + (voxel_x / 2) )
+            vy = int( (y / voxel_size) + (voxel_y / 2) )
+            vz = int( (z / voxel_size) + (voxel_z / 2) )
+            
+            if (0 <= vx < voxel_x) and (0 <= vy < voxel_y) and (0 <= vz < voxel_z):
+                voxel_grid[vx, vy, vz] = True
+                        
+        occupied_voxels = np.sum(voxel_grid)
+        total_voxels = voxel_x * voxel_y * voxel_z     
+           
+        # print("reachable count: ", occupied_voxels)
+        # print("num voxels: ", total_voxels)
+        
+        # # --- plot
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # ax.voxels(voxel_grid, edgecolor='k')
+
+        # ax.set_xlabel('X-axis')
+        # ax.set_ylabel('Y-axis')
+        # ax.set_zlabel('Z-axis')
+
+        # plt.title('3D Voxel Grid')
+        # plt.show()
+        
+        
+        return round(occupied_voxels / total_voxels * 100, 2)
+       
         
         
 if __name__ == "__main__":
@@ -322,8 +360,8 @@ if __name__ == "__main__":
     
     how_many_times_to_split_angle_range = 30
     world_resolution = 0.01
-    world_dimension = [1.00, 1.00, 1.00]
-    num_threads = 5
+    # world_dimension = [1.00, 1.00, 1.00]
+    # num_threads = 5
 
 
     ## 3 AXIS ROBOT
@@ -345,14 +383,20 @@ if __name__ == "__main__":
     reachable, manipulability =  zip(*valid_poses)
     reachable = np.array([list(pt) for pt in reachable])
     reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
+    percentage = reachability.find_reachibility_percentage(voxel_size = 0.1, valid_pose = reachable)
+
     
     
     
  
 
     # 6 AXIS ROBOT
+    world_dimension = [3.20, 3.20, 3.20]
     default_robot = prebuilt_robots.get_six_axis_modrob()
-    reachability = Reachability(robot=default_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
+    reachability = Reachability(robot = default_robot, 
+                                angle_interval = how_many_times_to_split_angle_range, 
+                                world_resolution = world_resolution, 
+                                world_dimension = world_dimension)
     
     start_t = time.time()
     valid_poses = reachability.reachability_random_sample(num_samples = 100000)
@@ -361,7 +405,12 @@ if __name__ == "__main__":
     
     reachable, manipulability =  zip(*valid_poses)
     reachable = np.array([list(pt) for pt in reachable])
+    print("reachable raw ", reachable)
+    
     reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
+    percentage = reachability.find_reachibility_percentage(voxel_size = 0.5, valid_pose = reachable)
+    
+    print(f"percentage {percentage}%")
     
     # percentage = reachability.find_reachibility_percentage()
     # print(f"Percentage of reachability: {percentage}%")
