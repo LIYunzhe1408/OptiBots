@@ -18,7 +18,7 @@ import threading
 from timor.utilities import prebuilt_robots
 
 
-class Reachability():
+class Reachability():    
     def __init__(self, robot, task = None, angle_interval = 20, world_dimension = [1.0, 1.0, 1.0], world_resolution = 0.01):
         """Construct a reachability object
 
@@ -34,6 +34,9 @@ class Reachability():
         self.world_dim = world_dimension
         self.world_res = world_resolution
         self.rounding = int(-math.log10(world_resolution))
+        
+        self.ee_downwards_axis = [0,0,-1]
+        self.safety_margin = 0.2
         
         self.valid_poses = []
         
@@ -249,24 +252,37 @@ class Reachability():
 
         fig.show()
         
-    def reachability_random_sample(self, num_samples):
+    def reachability_random_sample(self, num_samples, task = None):
         """Reachable points with their manipulability index."""
         reachable_points = set()
 
         for _ in tqdm(range(num_samples)):
             q = self.robot.random_configuration()
+            tcp_pose = self.robot.fk(q)
             
-            if not self.robot.has_self_collision(q):
-                tcp_pose = self.robot.fk(q)
-                end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
+            # Check if end effector is fully pointing downwards.
+            # The 3rd column of the rotation matrix corresponds to the z-axis of the EE w.r.t. world frame
+            end_effector_z_axis = tcp_pose[:3, 2]
+            if all(end_effector_z_axis == self.ee_downwards_axis):
+                continue
+            
+            # Check onfig has no collision
+            if self.robot.has_self_collision(q):
+                continue
                 
-                # Compute the Yoshikawa manipulability index
-                # High Yoshikawa manipulability index values indicate that the robot has good dexterity 
-                # and can move in multiple directions from the corresponding configurations. 
-                # Low manipulability index values indicate that corresponding configurations are less 
-                # dexterous and more susceptible to singularities.
-                manipulability_idk = self.robot.manipulability_index(q)
-                reachable_points.add((end_effector_pose, manipulability_idk))  
+            # check collision between obstacles and current config (changed in has_self_collision call) 
+            if task and self.robot.has_collisions(task, safety_margin = self.safety_margin):
+                continue
+                
+            end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
+
+            # Compute the Yoshikawa manipulability index
+            # High Yoshikawa manipulability index values indicate that the robot has good dexterity 
+            # and can move in multiple directions from the corresponding configurations. 
+            # Low manipulability index values indicate that corresponding configurations are less 
+            # dexterous and more susceptible to singularities.
+            manipulability_idk = self.robot.manipulability_index(q)
+            reachable_points.add((end_effector_pose, manipulability_idk))  
                 
         return list(reachable_points)
     
@@ -363,25 +379,25 @@ if __name__ == "__main__":
 
 
     ## 3 AXIS ROBOT
-    modules = ('base', 'i_30', 'J2', 'J2', 'J2', 'i_30', 'eef')
-    B = ModuleAssembly.from_serial_modules(db, modules)
-    long_robot = B.to_pin_robot() #convert to pinocchio robot
-    # viz = long_robot.visualize()
-    reachability = Reachability(robot=long_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
+    # modules = ('base', 'i_30', 'J2', 'J2', 'J2', 'i_30', 'eef')
+    # B = ModuleAssembly.from_serial_modules(db, modules)
+    # long_robot = B.to_pin_robot() #convert to pinocchio robot
+    # # viz = long_robot.visualize()
+    # reachability = Reachability(robot=long_robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
     
-    start_t = time.time()
-    valid_poses = reachability.reachability_random_sample(num_samples = 100000)
-    # valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
-    print(f"Time to find reachability: {time.time() - start_t} seconds")
+    # start_t = time.time()
+    # valid_poses = reachability.reachability_random_sample(num_samples = 100000)
+    # # valid_poses = reachability.find_all_valid_poses_multithreading(num_threads)
+    # print(f"Time to find reachability: {time.time() - start_t} seconds")
     
-    # reachability.plot_reachability("B_robot_reachability.png")
-    # percentage = reachability.find_reachibility_percentage()
-    # print(f"Percentage of reachability: {percentage}%") # TODO i think this is a wrong implementation
+    # # reachability.plot_reachability("B_robot_reachability.png")
+    # # percentage = reachability.find_reachibility_percentage()
+    # # print(f"Percentage of reachability: {percentage}%") # TODO i think this is a wrong implementation
  
-    reachable, manipulability =  zip(*valid_poses)
-    reachable = np.array([list(pt) for pt in reachable])
-    reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
-    percentage = reachability.find_reachibility_percentage(voxel_size = 0.1, valid_pose = reachable)
+    # reachable, manipulability =  zip(*valid_poses)
+    # reachable = np.array([list(pt) for pt in reachable])
+    # reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
+    # percentage = reachability.find_reachibility_percentage(voxel_size = 0.1, valid_pose = reachable)
 
     
     
