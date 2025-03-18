@@ -156,11 +156,17 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
     num_links = assembly.nModules - assembly.nJoints - 1
     return Lexicographic(reachability_score, -assembly.nJoints)
 
-def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, startDOF, endDOF):
 
+
+def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, startDOF, endDOF):
+    """
+    Performs a brute-force optimization to find the configuration with the highest fitness score.
+    Iterates over possible configurations (base, joints, links, degrees of freedom, end-effector) and evaluates their fitness.
+    Returns the configuration tuple with the highest fitness score."
+    """
 
     joint_link_pairs = list(itertools.product(jointNames, linkNames))
-    maxim = -1
+    maximLexicograph = Lexicographic(float("-inf"),float("-inf"))
     max_config = ()
     current_modules_list = []
     for baseName in baseNames:
@@ -172,9 +178,10 @@ def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames
                     dofSectionList = sum(list([list(tup) for tup in dofSection]), [])
                     for eefName in eefNames:
                         configuration_tuple = tuple(current_modules_list + dofSectionList + [eefName])
-                        
-                        if fitness_function(ModuleAssembly.from_serial_modules(db, configuration_tuple), None, 1) > maxim:
+                        current_Lexicograph = fitness_function(ModuleAssembly.from_serial_modules(db, configuration_tuple), None, 1)
+                        if   current_Lexicograph > maximLexicograph:
                             max_config = configuration_tuple
+                            maximLexicograph = current_Lexicograph
 
                     
             current_modules_list.pop()
@@ -227,27 +234,32 @@ def main(hyperparameters = None, visualize = False):
     # print(list(baseto4310_links.by_id.keys()))
     
     baseNames = [r_4310_base.id]
-    print(baseNames)
+    # print(baseNames)
     eefNames = list(eef.by_id.keys())
-    print(eefNames)
+    # print(eefNames)
 
-    jointNames = [r_4305_joint.id, r_4310_joint.id]
-    print(jointNames)
+
+    # when adding the other joints
+    # r_4305_joint.id
+    jointNames = [ r_4310_joint.id]
+    # print(jointNames)
 
     baseLinkNames = list(baseto4310_links.by_id.keys())
-    print(baseLinkNames)
+    # print(baseLinkNames)
 
-    linkNames = list(r4310to4305_links.by_id.keys()) + list(r4310to4310_links.by_id.keys())
-    print(linkNames)
+    # when adding the other links
+    #list(r4310to4305_links.by_id.keys()) +  
+    linkNames = list(r4310to4310_links.by_id.keys())
+    # print(linkNames)
 
     ## NAIVE SOLUTION
-    naive_results = naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, 1, 1)
+    naive_results = naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, 4, 4)
     print(naive_results)
     
-    ## GA SOLUTION:
-    # optimized_results = optimize(db, our_hyperparameters)
+    # GA SOLUTION:
+    optimized_results = optimize(db, our_hyperparameters)
 
-    # print(optimized_results)
+    print(optimized_results)
 
 
 
