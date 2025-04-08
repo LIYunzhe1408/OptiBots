@@ -18,7 +18,7 @@ from timor.utilities import prebuilt_robots
 from math import ceil
 
 class Reachability_with_weight():
-    def __init__(self, robot, task=None, angle_interval=100, world_resolution=0.01):
+    def __init__(self, robot, task = None, angle_interval = 20, world_dimension = [1.0, 1.0, 1.0], world_resolution = 0.01):
         """Construct a reachability object
 
         Args:
@@ -30,6 +30,7 @@ class Reachability_with_weight():
         self.robot = robot
         self.task = task
         self.angle_interval = angle_interval
+        self.world_dim = world_dimension
         self.world_res = world_resolution
         self.rounding = int(-math.log10(world_resolution))
         
@@ -272,7 +273,7 @@ class Reachability_with_weight():
         for _ in tqdm(range(num_samples), disable=True):
             q = self.robot.random_configuration()
             end_effector_pose = self.check_pose_and_get_gripper_with_weight(q, mass)
-            if not self.robot.has_self_collision(q) and not end_effector_pose:
+            if not self.robot.has_self_collision(q) and end_effector_pose is not None:
                 #tcp_pose = self.robot.fk(q)
                 #end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
                 
@@ -285,7 +286,6 @@ class Reachability_with_weight():
                 reachable_points.add((end_effector_pose, manipulability_idk))  
                 
         return list(reachable_points)
-    
     
     def plot_interactive_reachability_with_manipulability(self, reachable, manipulability):
         # Create the 3D scatter plot
@@ -382,7 +382,7 @@ class Reachability_with_weight():
     
 
 
-    def check_weight_feasibility_with_limits(computed_torques: np.ndarray, torque_limits: np.ndarray) -> bool:
+    def check_weight_feasibility_with_limits(self, computed_torques: np.ndarray, torque_limits: np.ndarray) -> bool:
         """
         Checks if the computed torques are feasible given the upper and lower allowable torque limits for each joint.
 
@@ -398,8 +398,7 @@ class Reachability_with_weight():
         lower_limits = torque_limits[:, 0]
         upper_limits = torque_limits[:, 1]
 
-
-        if torque_limits:
+        if torque_limits is not None and torque_limits.size > 0:
             # Check if all computed torques are within their respective limits
             feasible = np.all((computed_torques >= lower_limits) & (computed_torques <= upper_limits))
         else:
@@ -419,7 +418,6 @@ class Reachability_with_weight():
             #     print(f"Joints {exceeding_joints_lower} have computed torques below the lower limit.")
             # if len(exceeding_joints_upper) > 0:
             #     print(f"Joints {exceeding_joints_upper} have computed torques above the upper limit.")
-        
         return feasible
             
 
