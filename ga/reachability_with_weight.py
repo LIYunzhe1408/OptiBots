@@ -15,7 +15,7 @@ import plotly.graph_objects as go # interactive graphs
 
 import threading
 from timor.utilities import prebuilt_robots
-
+from math import ceil
 
 class Reachability_with_weight():
     def __init__(self, robot, task=None, angle_interval=100, world_resolution=0.01):
@@ -265,16 +265,16 @@ class Reachability_with_weight():
 
         fig.show()
         
-    def reachability_random_sample(self, num_samples):
+    def reachability_random_sample(self, num_samples, mass=1):
         """Reachable points with their manipulability index."""
         reachable_points = set()
 
-        for _ in tqdm(range(num_samples)):
+        for _ in tqdm(range(num_samples), disable=True):
             q = self.robot.random_configuration()
-            
-            if not self.robot.has_self_collision(q):
-                tcp_pose = self.robot.fk(q)
-                end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
+            end_effector_pose = self.check_pose_and_get_gripper_with_weight(q, mass)
+            if not self.robot.has_self_collision(q) and not end_effector_pose:
+                #tcp_pose = self.robot.fk(q)
+                #end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
                 
                 # Compute the Yoshikawa manipulability index
                 # High Yoshikawa manipulability index values indicate that the robot has good dexterity 
@@ -318,24 +318,67 @@ class Reachability_with_weight():
         # Show the interactive plot
         fig.show()
         
-        
-    def find_reachibility_percentage(self, world_dim = [1.00, 1.00, 1.00], world_res = 0.01):
+
+    def find_reachibility_percentage(self, voxel_size = 0.1, valid_pose = None):
         """Calculate the percentage of the world space that is reachable by our robot configuration.
 
         Args:
-            valid_poses (list[tuple[float, float, float]]): list of (x,y,z) poses that the end effector can reach.
-                We assume that the poses are rounded to the world_resolution!
-            world_dim (list[float, float, float]): _description_
-            world_res (float): how much to split the world (eg, 0.01m increments)
+            valid_poses ndarray of (3, ): (x,y,z) poses that the end effector can reach
+            voxel_size (float): used to split the space
 
         Returns:
-            float: percentage of world space that is reachable
+            float: percentage of world space that is reachable (occupied voxels / total voxels)
         """
-        total_cubes = (world_dim[0] / world_res) * (world_dim[1] / world_res) * (world_dim[2] / world_res)
-        print("total cubes", total_cubes)
-        reachable_count = len(self.valid_poses)
-        print("reachable count: ", reachable_count)
-        return round((reachable_count / total_cubes) * 100, 2)
+        voxel_x = ceil(self.world_dim[0] / voxel_size)
+        voxel_y = ceil(self.world_dim[1] / voxel_size)
+        voxel_z = ceil(self.world_dim[2] / voxel_size)
+        voxel_grid = np.zeros((voxel_x, voxel_y, voxel_z), dtype = bool)
+            
+        for x, y, z in valid_pose: 
+            vx = int( (x / voxel_size) + (voxel_x / 2) )
+            vy = int( (y / voxel_size) + (voxel_y / 2) )
+            vz = int( (z / voxel_size) + (voxel_z / 2) )
+            
+            if (0 <= vx < voxel_x) and (0 <= vy < voxel_y) and (0 <= vz < voxel_z):
+                voxel_grid[vx, vy, vz] = True
+                        
+        occupied_voxels = np.sum(voxel_grid)
+        total_voxels = voxel_x * voxel_y * voxel_z     
+           
+        # print("reachable count: ", occupied_voxels)
+        # print("num voxels: ", total_voxels)
+        
+        # # --- plot
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # ax.voxels(voxel_grid, edgecolor='k')
+
+        # ax.set_xlabel('X-axis')
+        # ax.set_ylabel('Y-axis')
+        # ax.set_zlabel('Z-axis')
+
+        # plt.title('3D Voxel Grid')
+        # plt.show()
+        
+        
+        return round(occupied_voxels / total_voxels * 100, 2)        
+    # def find_reachibility_percentage(self, world_dim = [1.00, 1.00, 1.00], world_res = 0.01):
+    #     """Calculate the percentage of the world space that is reachable by our robot configuration.
+
+    #     Args:
+    #         valid_poses (list[tuple[float, float, float]]): list of (x,y,z) poses that the end effector can reach.
+    #             We assume that the poses are rounded to the world_resolution!
+    #         world_dim (list[float, float, float]): _description_
+    #         world_res (float): how much to split the world (eg, 0.01m increments)
+
+    #     Returns:
+    #         float: percentage of world space that is reachable
+    #     """
+    #     total_cubes = (world_dim[0] / world_res) * (world_dim[1] / world_res) * (world_dim[2] / world_res)
+    #     print("total cubes", total_cubes)
+    #     reachable_count = len(self.valid_poses)
+    #     print("reachable count: ", reachable_count)
+    #     return round((reachable_count / total_cubes) * 100, 2)
     
 
 

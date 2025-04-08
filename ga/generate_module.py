@@ -216,7 +216,7 @@ def create_revolute_joint(urdf_path: str):
     for link in links:
         link_name = link['name']
         stl_path = link['collision']['geometry']['mesh']['filename']
-        assets_path = os.path.join("assets", dir_name, dir_name, stl_path.split('/')[1], stl_path.split('/')[2])
+        assets_path = os.path.join("assets", dir_name, dir_name, stl_path.split('/')[-2], stl_path.split('/')[-1])
         if link_name == proximal_name:
             proximal_inertial = link['inertial']
             proximal_origin = link['collision']['origin']
@@ -286,7 +286,7 @@ def create_revolute_joint(urdf_path: str):
         joint_type=joint['type'],
         parent_body=proximal,
         child_body=distal,
-        q_limits=np.array([-np.pi, np.pi]),
+        q_limits=np.array([-np.pi, np.pi]) if joint['type'] != "continuous" else (-np.inf, np.inf),
         torque_limit=1000,
         acceleration_limit=5,
         velocity_limit=10,

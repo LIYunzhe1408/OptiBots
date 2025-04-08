@@ -22,6 +22,7 @@ from timor.Joints import Joint
 from timor.Geometry import Box, ComposedGeometry, Cylinder, Sphere, Mesh
 
 from reachability import Reachability
+from reachability_with_weight import Reachability_with_weight
 from generate_module import create_i_links, create_eef, create_revolute_joint
 
 how_many_times_to_split_angle_range = 30
@@ -32,7 +33,13 @@ our_hyperparameters = {
     'population_size': 40,
     'num_generations': 200,
     'num_genes': 20,
+ #   'parallel_processing': ['process', 3],
+    # 'mutation_probability':0, 
+    # 'crossover_probability':0,
     'save_solutions_dir': None
+}
+ga_args = {
+    'parallel_processing': ['process', 3],
 }
 db = None
 
@@ -63,7 +70,7 @@ improved_hyperparameters = {
 # }
 
 NUM_SAMPLE = 100000
-def is_valid_module_order(moduleAssembly):
+def num_incorrect_connections(moduleAssembly):
     """
     Checks if a list of modules is ordered correctly according to these rules:
     1. Links must be placed between joints they connect
@@ -77,6 +84,7 @@ def is_valid_module_order(moduleAssembly):
     Returns:
         bool: True if the order is valid, False otherwise
     """
+    num_incorrect_connections = 0
     modules = list(moduleAssembly.original_module_ids)
     if not modules:
         return True
@@ -95,10 +103,12 @@ def is_valid_module_order(moduleAssembly):
     # Helper function to check if a module is a joint
     def is_joint(module):
         return "joint" in module or module == "eef"
+        #return "J" in module or module == "eef"
     
     # Helper function to check if a module is a link
     def is_link(module):
         return "-" in module and "to" in module
+        #return "i" in module or "l" in module
     
     # Check alternating pattern and correct linkage
     for i in range(len(modules) - 2):
@@ -108,13 +118,15 @@ def is_valid_module_order(moduleAssembly):
         # Check alternating pattern
         if is_joint(current) and is_joint(next_module):
             # Two joints in a row - should have a link between them
-            return (current, next_module)
-            return False
+            #return (current, next_module)
+            num_incorrect_connections += 1
+            #return False
         
         if is_link(current) and is_link(next_module):
             # Two links in a row - invalid
-            return (current, next_module)
-            return False
+            #return (current, next_module)
+            num_incorrect_connections += 1
+            #return False
         
         # If current is a joint and next is a link, verify the link connects to this joint
         if is_joint(current) and is_link(next_module):
@@ -123,7 +135,8 @@ def is_valid_module_order(moduleAssembly):
             
             if not (first_joint in joint_base_name):
                 #return (first_joint, joint_base_name)
-                return False
+                num_incorrect_connections += 1
+                #return False
         
         # If current is a link and next is a joint, verify the link connects to the next joint
         if is_link(current) and is_joint(next_module):
@@ -132,9 +145,10 @@ def is_valid_module_order(moduleAssembly):
             
             if not (second_joint in joint_base_name):
                 #return (joint_base_name, second_joint)
-                return False
+                num_incorrect_connections += 1
+                #return False
     
-    return True
+    return num_incorrect_connections
     
 def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
     """
@@ -145,24 +159,42 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
     """
     #TODO - include reachability metric and max weight calculations in this fitness function
     robot = assembly.to_pin_robot()
-    if robot.has_self_collision() or assembly.nJoints <= 4 or (not is_valid_module_order(assembly)):
-        return Lexicographic(0,-10)
-    reachability = Reachability(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
+    num_i = num_incorrect_connections(assembly)
+    if robot.has_self_collision():
+        return Lexicographic(-10,-100, -10)
+    elif num_i != 0:
+        return Lexicographic(-num_i*10/assembly.nModules, -assembly.nModules, -assembly.nJoints)
+    #reachability = Reachability(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
+    
+    reachability = Reachability_with_weight(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
     valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE)
     reachable, manipulability =  zip(*valid_poses)
     reachable = np.array([list(pt) for pt in reachable])
     reachability_score = reachability.find_reachibility_percentage(valid_pose=reachable)
     #reachability_score = len(valid_poses)/NUM_SAMPLE
     num_links = assembly.nModules - assembly.nJoints - 1
-    return Lexicographic(reachability_score, -assembly.nJoints)
+    return Lexicographic(reachability_score, -assembly.nModules, -assembly.nJoints)
 
+def on_generation(ga):
+    print("Last generation fitness: ", ga.last_generation_fitness)
+
+    with open("generation_fitness.txt", "a") as file:  # Open file in append mode
+        file.write(f"Last generation fitness: {ga.last_generation_fitness}\n")
+        
 def optimize(db, hyperparameters):
     ga = GA(db, custom_hp=hyperparameters) 
-    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True)
+
+    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 5), on_generation=on_generation)
     num2id = {v: k for k, v in ga.id2num.items()} 
     module_ids = [num2id[num] for num in ga_optimizer.best_solution()[0]]
 
-    return module_ids
+    return (module_ids, ga)
+
+def filter(module):
+    if "l" in module.id:
+        return False
+    return True
+
 
 def main(hyperparameters = None, visualize = False):
 
@@ -190,13 +222,18 @@ def main(hyperparameters = None, visualize = False):
     db = db.union(eef)
     viz = db.debug_visualization()
 
-    optimized_results = optimize(db, our_hyperparameters)
+    # from timor.utilities.file_locations import get_module_db_files
+    # modules_file = get_module_db_files('geometric_primitive_modules')
+    # db = ModulesDB.from_json_file(modules_file)
+    # db2 = db.filter(filter)
+    # print(db2.all_module_names)
+    optimized_results, ga = optimize(db, our_hyperparameters)
 
     print(optimized_results)
 
 
 
-
+# ('base', 'i_45', 'J1', 'i_15', 'J2', 'i_45', 'J2', 'i_45', 'J1', 'i_15', 'J2', 'i_30', 'J2', 'i_45', 'J2', 'eef')
 
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
