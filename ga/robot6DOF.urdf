@@ -1,4 +1,4 @@
-<robot name="Auto-Generated: 67f8671c0c4e418085f7d3e6d7e8170b">
+<robot name="Auto-Generated: 3ccd00c199ff4cfd81bc3fa710332e28">
 	<link name="base_rev_joint.base_motor_link">
 		<inertial>
 			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 3.141592653589793" />

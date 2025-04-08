@@ -118,7 +118,7 @@ def base(urdf_path):
     for link in links:
         link_name = link['name']
         stl_path = link['collision']['geometry']['mesh']['filename']
-        assets_path = os.path.join("assets", dir_name, dir_name, stl_path.split('/')[1], stl_path.split('/')[2])
+        assets_path = os.path.join("assets", dir_name, dir_name, stl_path.split('/')[-2], stl_path.split('/')[-1])
         if link_name == proximal_name:
             proximal_inertial = link['inertial']
             proximal_origin = link['collision']['origin']
@@ -140,7 +140,7 @@ def base(urdf_path):
     ROT_Z_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
     EYE = Transformation.from_rotation(rotX(0)[:3, :3])
 
-    c_type = 'base' if  joint['name'] == 'base_rev_joint' else 'default'
+    c_type = 'base' #if  joint['name'] == 'base_rev_joint' else 'default'
     ROTATE_PROXIMAL = ROT_X if c_type == 'base' else EYE
     ROTATE_DISTAL = EYE if c_type == 'base' else EYE
 
@@ -180,11 +180,11 @@ def base(urdf_path):
                     )
     
     r_joint = Joint(
-        joint_id=joint['name'],
+        joint_id=urdf_dict['robot']['name'],
         joint_type=joint['type'],
         parent_body=proximal,
         child_body=distal,
-        q_limits=np.array([-np.pi, np.pi]),
+        q_limits=np.array([-np.pi, np.pi]) if joint['name'] == 'revolute' else (-np.inf, np.inf),
         torque_limit=1000,
         acceleration_limit=5,
         velocity_limit=10,
@@ -197,7 +197,7 @@ def base(urdf_path):
                                                     p=np.array([0, -0.0, 0])
                                 )
     )
-    return AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
+    return AtomicModule(generate_header(urdf_dict['robot']['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
     
     # return ModulesDB({
     #     AtomicModule(ModuleHeader(ID='base', name='Base', author=['Jonathan Külz'], date="2024-12-03",
@@ -207,6 +207,7 @@ def base(urdf_path):
 def create_revolute_joint(urdf_path: str):
     dir_name = urdf_path.split('/')[1]
     urdf_dict = urdf_to_dict(urdf_path)
+    module_name = urdf_dict['robot']['name'].split(".")[0]
     joint = urdf_dict['robot']['joint']
     proximal_name = joint['parent']['link']
     distal_name = joint['child']['link']
@@ -238,12 +239,12 @@ def create_revolute_joint(urdf_path: str):
     ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
     EYE = Transformation.from_rotation(rotX(0)[:3, :3])
 
-    c_type = 'base' if  joint['name'] == 'base_rev_joint' else 'default'
-    ROTATE_PROXIMAL = ROT_X if c_type == 'base' else EYE
+    c_type = 'base' if  'base' in module_name else 'default'
+    ROTATE_PROXIMAL = ROT_X @ ROT_X if c_type == 'base' else EYE
     ROTATE_DISTAL = EYE if c_type == 'base' else EYE #Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
 
     proximal_connector = Connector(
-                                    connector_id=proximal_name+"connector",
+                                    connector_id=module_name + proximal_name+"connector",
                                     body2connector=ROTATE_PROXIMAL @ Transformation.from_roto_translation(
                                                     R=rpy_to_rotation_matrix(np.array([0,0, 0])),       
                                                     # R=r_p,
@@ -256,7 +257,7 @@ def create_revolute_joint(urdf_path: str):
                                     size=[diameter, diameter]
         )
     distal_connector = Connector(
-                                    connector_id=distal_name+"connector",
+                                    connector_id=module_name + distal_name+"connector",
                                     body2connector=ROTATE_DISTAL @ Transformation.from_roto_translation(
                                                     R=rpy_to_rotation_matrix(np.array([0,0, 0])),
                                                     p=np.array([0, 0.0, 0]),            
@@ -270,11 +271,11 @@ def create_revolute_joint(urdf_path: str):
                                     
         )            
     
-    proximal = Body(proximal_name, collision=proximal_geometry,
+    proximal = Body(module_name + proximal_name, collision=proximal_geometry,
                     connectors=[proximal_connector],
                     inertia=create_inertia(proximal_inertial)
                     )
-    distal = Body(distal_name, collision=distal_geometry,
+    distal = Body(module_name + distal_name, collision=distal_geometry,
                     connectors=[distal_connector],
                     inertia=create_inertia(distal_inertial)
                     )
@@ -282,11 +283,11 @@ def create_revolute_joint(urdf_path: str):
     ROTATE_JOINT_P = rpy_to_rotation_matrix([np.pi/2, 0, 0])
     ROTATE_JOINT_C = rpy_to_rotation_matrix([-np.pi/2, 0, 0])
     r_joint = Joint(
-        joint_id=joint['name'],
+        joint_id=module_name,
         joint_type=joint['type'],
         parent_body=proximal,
         child_body=distal,
-        q_limits=np.array([-np.pi, np.pi]) if joint['type'] != "continuous" else (-np.inf, np.inf),
+        q_limits=np.array([-np.pi, np.pi]) if joint['type'] == 'revolute' else (-np.inf, np.inf),
         torque_limit=1000,
         acceleration_limit=5,
         velocity_limit=10,
@@ -302,11 +303,8 @@ def create_revolute_joint(urdf_path: str):
     # if c_type == 'base':
     #     return AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal],[])
     
-    return AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
-    return ModulesDB({
-            AtomicModule(generate_header(joint['name'], 'Revolute Joint: ' + joint['name']), [proximal, distal], [r_joint])
-            # AtomicModule(generate_header(joint['name'], "R"), [proximal])
-        })
+    return AtomicModule(generate_header(module_name, joint['type'] + " joint: " + module_name), [proximal, distal], [r_joint])
+
 # def create_revolute_joint(urdf_path) -> ModulesDB:
 #     """Creates an L-shaped joint"""
 #     dir_name = urdf_path.split('/')[1]

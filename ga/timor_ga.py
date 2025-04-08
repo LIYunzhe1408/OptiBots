@@ -39,7 +39,7 @@ our_hyperparameters = {
     'save_solutions_dir': None
 }
 ga_args = {
-    'parallel_processing': ['process', 3],
+    'parallel_processing': ['process', 30],
 }
 db = None
 
@@ -220,7 +220,7 @@ def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames
 def optimize(db, hyperparameters):
     ga = GA(db, custom_hp=hyperparameters) 
 
-    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 5), on_generation=on_generation)
+    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 50), on_generation=on_generation)
     num2id = {v: k for k, v in ga.id2num.items()} 
     module_ids = [num2id[num] for num in ga_optimizer.best_solution()[0]]
 
@@ -277,25 +277,25 @@ def main(hyperparameters = None, visualize = False):
     # print(db2.all_module_names)
     optimized_results, ga = optimize(db, our_hyperparameters)
 
-    # when adding the other joints
-    # r_4305_joint.id
-    jointNames = [ r_4310_joint.id]
-    # print(jointNames)
+    # # when adding the other joints
+    # # r_4305_joint.id
+    # jointNames = [ r_4310_joint.id]
+    # # print(jointNames)
 
-    baseLinkNames = list(baseto4310_links.by_id.keys())
-    # print(baseLinkNames)
+    # baseLinkNames = list(baseto4310_links.by_id.keys())
+    # # print(baseLinkNames)
 
-    # when adding the other links
-    #list(r4310to4305_links.by_id.keys()) +  
-    linkNames = list(r4310to4310_links.by_id.keys())
-    # print(linkNames)
+    # # when adding the other links
+    # #list(r4310to4305_links.by_id.keys()) +  
+    # linkNames = list(r4310to4310_links.by_id.keys())
+    # # print(linkNames)
 
-    ## NAIVE SOLUTION
-    naive_results = naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, 4, 4)
-    print(naive_results)
+    # ## NAIVE SOLUTION
+    # naive_results = naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, 4, 4)
+    # print(naive_results)
     
-    # GA SOLUTION:
-    optimized_results = optimize(db, our_hyperparameters)
+    # # GA SOLUTION:
+    # optimized_results = optimize(db, our_hyperparameters)
 
     print(optimized_results)
 
