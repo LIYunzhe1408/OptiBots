@@ -181,6 +181,42 @@ def on_generation(ga):
     with open("generation_fitness.txt", "a") as file:  # Open file in append mode
         file.write(f"Last generation fitness: {ga.last_generation_fitness}\n")
         
+
+
+def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, startDOF, endDOF):
+    """
+    Performs a brute-force optimization to find the configuration with the highest fitness score.
+    Iterates over possible configurations (base, joints, links, degrees of freedom, end-effector) and evaluates their fitness.
+    Returns the configuration tuple with the highest fitness score."
+    """
+
+    joint_link_pairs = list(itertools.product(jointNames, linkNames))
+    maximLexicograph = Lexicographic(float("-inf"),float("-inf"))
+    max_config = ()
+    current_modules_list = []
+    for baseName in baseNames:
+        current_modules_list.append(baseName)
+        for baseLinkName in baseLinkNames:
+            current_modules_list.append(baseLinkName)
+            for dof in range(startDOF, endDOF+1):
+                for dofSection in itertools.product(joint_link_pairs, repeat=dof):
+                    dofSectionList = sum(list([list(tup) for tup in dofSection]), [])
+                    for eefName in eefNames:
+                        configuration_tuple = tuple(current_modules_list + dofSectionList + [eefName])
+                        current_Lexicograph = fitness_function(ModuleAssembly.from_serial_modules(db, configuration_tuple), None, 1)
+                        if   current_Lexicograph > maximLexicograph:
+                            max_config = configuration_tuple
+                            maximLexicograph = current_Lexicograph
+
+                    
+            current_modules_list.pop()
+
+        current_modules_list.pop()
+    return max_config
+    
+
+
+
 def optimize(db, hyperparameters):
     ga = GA(db, custom_hp=hyperparameters) 
 
@@ -221,6 +257,18 @@ def main(hyperparameters = None, visualize = False):
     db = db.union(r4310to4310_links)
     db = db.union(eef)
     viz = db.debug_visualization()
+    # print(db)
+    # print(db.all_joints)
+    # print(db.all_connectors)
+    # print(db.by_name)
+    # print(db.by_id)
+    # print(db.by_id)
+    # print(list(baseto4310_links.by_id.keys()))
+    
+    baseNames = [r_4310_base.id]
+    # print(baseNames)
+    eefNames = list(eef.by_id.keys())
+    # print(eefNames)
 
     # from timor.utilities.file_locations import get_module_db_files
     # modules_file = get_module_db_files('geometric_primitive_modules')
@@ -228,6 +276,26 @@ def main(hyperparameters = None, visualize = False):
     # db2 = db.filter(filter)
     # print(db2.all_module_names)
     optimized_results, ga = optimize(db, our_hyperparameters)
+
+    # when adding the other joints
+    # r_4305_joint.id
+    jointNames = [ r_4310_joint.id]
+    # print(jointNames)
+
+    baseLinkNames = list(baseto4310_links.by_id.keys())
+    # print(baseLinkNames)
+
+    # when adding the other links
+    #list(r4310to4305_links.by_id.keys()) +  
+    linkNames = list(r4310to4310_links.by_id.keys())
+    # print(linkNames)
+
+    ## NAIVE SOLUTION
+    naive_results = naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, 4, 4)
+    print(naive_results)
+    
+    # GA SOLUTION:
+    optimized_results = optimize(db, our_hyperparameters)
 
     print(optimized_results)
 
