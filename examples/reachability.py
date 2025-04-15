@@ -544,6 +544,8 @@ if __name__ == "__main__":
     
     reachability = Reachability(robot = default_robot, task = task,
                                 world_min_dim = [-1.5, -1.5, -1.5], world_max_dim = [2.0, 2.0, 2.0])
+    reachability2 = Reachability(robot = default_robot, task = task,
+                                world_min_dim = [-1.5, -1.5, -1.5], world_max_dim = [2.0, 2.0, 2.0])
     
     start_t = time.time()
     reachability.reachability_random_sample(num_samples = 100000)
@@ -556,6 +558,19 @@ if __name__ == "__main__":
     # reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
     reachability.plot_reachability()
     percentage = reachability.find_reachibility_percentage(voxel_size = 0.1)
+    print(f"percentage {percentage}%")
+    
+    start_t = time.time()
+    reachability2.reachability_random_sample(num_samples = 100000)
+    print(f"Time to find reachability: {time.time() - start_t} seconds")
+    
+    # reachable, manipulability =  zip(*valid_poses)
+    # reachable = np.array([list(pt) for pt in reachable])
+    # print("reachable raw ", reachable)
+    
+    # reachability.plot_interactive_reachability_with_manipulability(reachable, manipulability)
+    reachability2.plot_reachability()
+    percentage = reachability2.find_reachibility_percentage(voxel_size = 0.1)
     print(f"percentage {percentage}%")
     
     # percentage = reachability.find_reachibility_percentage()
