@@ -237,7 +237,7 @@ if __name__ == "__main__":
     ray.init()
     
     # Create robot and task as before
-    default_robot = prebuilt_robots.get_six_axis_modrob()
+    # default_robot = prebuilt_robots.get_six_axis_modrob()
     
     ## 3 AXIS ROBOT
     # Create a database
