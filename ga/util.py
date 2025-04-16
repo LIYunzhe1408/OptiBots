@@ -229,6 +229,12 @@ def read_rod_trans(rod_name, length, diameter):
         ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
         return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
     
+    elif rod_name == "baseto430_2":
+        ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+        ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
+        ROT_X_90 = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y @ Transformation.from_translation([0, 0.75*diameter, -1.75*diameter]), Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
+    
     elif rod_name == 'default':
         ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
         return [ROT_X @ Transformation.from_translation([0, 0, length/2]), Transformation.from_translation([0, 0, length/2])]
@@ -239,7 +245,7 @@ def read_rod_trans(rod_name, length, diameter):
         ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
         ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
         ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
-        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X, Transformation.from_translation([0, -2*diameter, length/2 + diameter])]
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X, Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, diameter])]
 
 def fetch_joint_trans(joint_name, length, diameter, gender):
     ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
@@ -264,9 +270,9 @@ def fetch_joint_trans(joint_name, length, diameter, gender):
 
     elif joint_name == '430_joint':
         if gender == Gender.f:
-            return []
+            return [Transformation.from_translation([0, 0, length/2 + 0.01]), Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, diameter])]
         elif gender == Gender.m:
-            return []
+            return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y @ Transformation.from_translation([0, 0.75*diameter, -1.75*diameter]), ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y @ ROT_X_90 @ Transformation.from_translation([0, 1.25*diameter, -2.25*diameter])]
     
     elif joint_name == '540_joint':
         if gender == Gender.f:

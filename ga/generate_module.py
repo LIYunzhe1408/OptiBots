@@ -105,7 +105,7 @@ def create_i_links(rod_name) -> ModulesDB:
     return links
 
 def generate_i_links(base, joints):
-    sizes = (150 / 1000, 300 / 1000, 450 / 1000)
+    sizes = (10/1000, 150 / 1000, 20/1000, 300 / 1000)
     diameter = 25 / 1000
     directions = ['N', 'E', 'W', 'S']
     ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
