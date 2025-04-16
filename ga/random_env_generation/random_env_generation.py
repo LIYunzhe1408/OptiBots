@@ -65,7 +65,7 @@ def generate_random_cuboid(vol, max_size, space_size=(1.0, 1.0, 1.0)):
     return dims
 
 # Plot cuboids and ensure no overlap
-def plot_random_cuboids(num_cuboids=20, total_volume=0.001, space_size=(1.0, 1.0, 1.0), max_size=(0.5, 0.5, 0.5)):
+def plot_random_cuboids(num_cuboids=20, total_volume=0.001, space_size=(1.0, 1.0, 1.0), max_size=(0.5, 0.5, 0.5), seed=42):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     cuboids = []
@@ -78,6 +78,8 @@ def plot_random_cuboids(num_cuboids=20, total_volume=0.001, space_size=(1.0, 1.0
     x_bounds = (-x_size/2.0, x_size/2.0)
     y_bounds = (-y_size/2.0, y_size/2.0)
     z_bounds = (0, z_size)
+
+    # np.random.seed(seed)
 
     while len(cuboids) < num_cuboids and attempts < 10000:
         vol = volumes[len(cuboids)]

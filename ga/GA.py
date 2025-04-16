@@ -58,6 +58,15 @@ def get_ga_progress(unit: ProgressUnit,
     elif unit is ProgressUnit.SECONDS:
         return int(time.time() - t0)
 
+def extract_joints_from_link(link):
+            # Handle different link naming patterns
+        if "-to-" in link:
+            parts = link.split("-to-")
+            # Extract parts before 'to' and after 'to' (before any dash)
+            first_joint = parts[0]
+            second_joint = parts[1].split("-")[0] if "-" in parts[1] else parts[1]
+            return first_joint, second_joint
+        return None, None
 
 class GA:
     """
@@ -175,6 +184,90 @@ class GA:
 
         # Select the parent selection function based on the selection type.
         self.sp = self.hp['selection_pressure']
+    
+    def num_incorrect_connections(self, modules):
+        """
+        Checks if a list of modules is ordered correctly according to these rules:
+        1. Links must be placed between joints they connect
+        2. Links cannot connect to other links
+        3. Links must connect to joints mentioned in their name
+        4. The sequence should alternate between joints and links, ending with a joint or eef
+        
+        Args:
+            modules (tuple or list): A sequence of module names as strings
+            
+        Returns:
+            bool: True if the order is valid, False otherwise
+        """
+        num_incorrect_connections = 0
+        # modules = list(moduleAssembly.original_module_ids)
+        if not modules:
+            return True
+        
+        # Helper function to extract joint names from a link
+        def extract_joints_from_link(link):
+            # Handle different link naming patterns
+            if "-to-" in link:
+                parts = link.split("-to-")
+                # Extract parts before 'to' and after 'to' (before any dash)
+                first_joint = parts[0]
+                second_joint = parts[1].split("-")[0] if "-" in parts[1] else parts[1]
+                return first_joint, second_joint
+            return None, None
+        
+        # Helper function to check if a module is a joint
+        def is_joint(module):
+            return "-to-" not in module
+            #return "joint" in module or module == "eef"
+            #return "J" in module or module == "eef"
+        
+        # Helper function to check if a module is a link
+        def is_link(module):
+            return "-to-" in module
+            #return "-" in module and "to" in module
+            #return "i" in module or "l" in module
+        
+        # Check alternating pattern and correct linkage
+        for i in range(len(modules) - 1):
+            current = modules[i]
+            next_module = modules[i + 1]
+            if next_module == 'eef':
+                continue
+
+            # Check alternating pattern
+            if is_joint(current) and is_joint(next_module):
+                # Two joints in a row - should have a link between them
+                #return (current, next_module)
+                num_incorrect_connections += 1
+                #return False
+            
+            if is_link(current) and is_link(next_module):
+                # Two links in a row - invalid
+                #return (current, next_module)
+                num_incorrect_connections += 1
+                #return False
+            
+            # If current is a joint and next is a link, verify the link connects to this joint
+            if is_joint(current) and is_link(next_module):
+                first_joint, second_joint = extract_joints_from_link(next_module)
+                joint_base_name = current #.replace("_rev_joint", "").replace("_joint", "")
+                
+                if not (first_joint in joint_base_name):
+                    #return (first_joint, joint_base_name)
+                    num_incorrect_connections += 1
+                    #return False
+            
+            # If current is a link and next is a joint, verify the link connects to the next joint
+            if is_link(current) and is_joint(next_module):
+                first_joint, second_joint = extract_joints_from_link(current)
+                joint_base_name = next_module #.replace("_rev_joint", "").replace("_joint", "")
+                
+                if not (second_joint in joint_base_name):
+                    #return (joint_base_name, second_joint)
+                    num_incorrect_connections += 1
+                    #return False
+        
+        return num_incorrect_connections
 
     def check_individual(self, individual: np.ndarray) -> bool:
         """
@@ -186,6 +279,8 @@ class GA:
         try:
             individual = tuple(individual)
             module_ids = self._map_genes_to_id(individual)
+            if self.num_incorrect_connections(module_ids) != 0:
+                return False
             self._get_candidate_assembly(module_ids)
             return True
         except (err.InvalidAssemblyError, ValueError):
@@ -402,6 +497,17 @@ class GA:
         initial_population = self._get_initial_population(
             population_size=(int(run_hp.pop('population_size')), int(run_hp['num_genes'])),
             module_weights=run_hp.pop('initial_module_weights', None))
+        
+        pops = [tuple(pop) for pop in initial_population]
+        module_ids = [self._map_genes_to_id(pop) for pop in pops]
+        # print(self.base_ids)
+        # print(self.link_ids)
+        # print(self.joint_ids)
+        # print(self.eef_ids)
+        print("Init population sample: ", module_ids[:10])
+        with open("init_population.txt", "w") as f:
+            for item in module_ids:
+                f.write(f"{item}\n")  # each element on a new line
 
         if 'logger' not in ga_kwargs:
             ga_kwargs['logger'] = logging.getLogger()
@@ -525,12 +631,35 @@ class GA:
         self._last_ga_instance = ga_instance
         return ga_instance
 
+    # def create_gene_space(self, run_hp: Dict[str, any]) -> Dict[str, any]:
+    #     """Create gene space and type for pygad."""
+    #     gene_space: List[List[int]] = [[self.id2num[_id] for _id in self.base_ids]]
+    #     for _ in range(run_hp['num_genes'] - 2):
+    #         gene_space.append([self.id2num[_id] for _id in self.joint_ids + self.link_ids])
+    #     gene_space.append([self.id2num[_id] for _id in self.eef_ids])
+    #     return {"gene_space": gene_space, "gene_type": int}
     def create_gene_space(self, run_hp: Dict[str, any]) -> Dict[str, any]:
-        """Create gene space and type for pygad."""
-        gene_space: List[List[int]] = [[self.id2num[_id] for _id in self.base_ids]]
-        for _ in range(run_hp['num_genes'] - 2):
-            gene_space.append([self.id2num[_id] for _id in self.joint_ids + self.link_ids])
+        """Create gene space with alternating joint-linkage structure."""
+        gene_space: List[List[int]] = []
+        
+        # 1. Add base (first position)
+        gene_space.append([self.id2num[_id] for _id in self.base_ids])
+        
+        # 2. Calculate alternating pattern length
+        num_middle = run_hp['num_genes'] - 2  # Subtract base and end effector
+        if num_middle % 2 != 0:
+            raise ValueError("num_genes must be even to maintain alternation")
+        
+        # 3. Add alternating joints/links
+        for i in range(num_middle):
+            if i % 2 == 0:  # Even positions after base = linkages
+                gene_space.append([self.id2num[_id] for _id in self.link_ids])
+            else:  # Odd positions after base = joints
+                gene_space.append([self.id2num[_id] for _id in self.joint_ids])
+        
+        # 4. Add end effector (last position)
         gene_space.append([self.id2num[_id] for _id in self.eef_ids])
+        
         return {"gene_space": gene_space, "gene_type": int}
 
     def single_valid_crossover(self, parents: np.ndarray, offspring_size: Tuple, ga_instance: pygad.GA) -> np.ndarray:
@@ -646,79 +775,141 @@ class GA:
         return tuple(gene_id for gene_id in map(self.all_modules.__getitem__, genome) if gene_id != self.__empty_slot)
 
     def _get_initial_population(self,
-                                population_size: Tuple[int, int],
-                                module_weights: Optional[Dict[str, float]] = None
-                                ) -> np.ndarray:
+                            population_size: Tuple[int, int],
+                            module_weights: Optional[Dict[str, float]] = None
+                            ) -> np.ndarray:
         """
-        Generates the initial population for the genetic algorithm.
-
-        It returns a list of chromosomes, where each chromosome represents a potential solution. It extends the shortest
-        paths to a desired length by successively adding detours of length 1. Each chromosome is a list of genes, where
-        each gene represents a module. The first gene is the base, the last gene is the end effector, and the genes in
-        between are links and joints. The length of the chromosome equals to the gene_len.
-
-        :param population_size: The size of the initial population as a tuple of (num_offsprings, num_genes).
-        :param module_weights: A dictionary, mapping each module ID in the database to be optimized to a
-            weight that determines how likely it is to be chosen as a replacement during mutation.
+        Generates the initial population with strict alternating link-joint pattern.
         """
         module_weights = module_weights if module_weights is not None else dict.fromkeys(self.all_modules, 1.)
         if not set(self.all_modules).issubset(set(module_weights.keys())):
             missing = set(self.all_modules).difference(set(module_weights.keys()))
             raise ValueError(f"Modules {missing} are not covered by the mutation weights!")
 
+        # Calculate weights for component selection
         p_bases = np.array([module_weights[_id] for _id in self.base_ids])
         p_eef = np.array([module_weights[_id] for _id in self.eef_ids])
+        p_links = np.array([module_weights[_id] for _id in self.link_ids])
+        p_joints = np.array([module_weights[_id] for _id in self.joint_ids])
+        
+        # Normalize weights
         p_bases = p_bases / p_bases.sum()
         p_eef = p_eef / p_eef.sum()
+        p_links = p_links / p_links.sum() if p_links.sum() > 0 else p_links
+        p_joints = p_joints / p_joints.sum() if p_joints.sum() > 0 else p_joints
 
         initial_population = []
         for _ in range(population_size[0]):
-            base = self.db.by_id[self.rng.choice(self.base_ids, p=p_bases)]
-            eef = self.db.by_id[self.rng.choice(self.eef_ids, p=p_eef)]
-            path = nx.shortest_path(self.G, base, eef)
-            while len(path) < population_size[1]:
-                # return edge connecting the two modules in the randomly selected location
-                if len(path) == 2:
-                    loc = 0  # Numpy rng.integers() does not support high=0
-                else:
-                    loc = self.rng.integers(low=0, high=len(path) - 1)
-                if path[loc] == self.__empty_slot:
-                    continue
-                loc_next = loc + 1
-                while path[loc_next] == self.__empty_slot:
-                    loc_next = loc_next + 1
-                if path[loc] is path[loc_next]:
-                    num_edges = self.G.number_of_edges(path[loc], path[loc_next])
-                    rand_edge = self.rng.integers(0, num_edges - 1)
-                    shortest_path = [[(path[loc], path[loc_next], rand_edge)]]
-                else:
-                    shortest_path = list(nx.all_simple_edge_paths(self.G, path[loc], path[loc_next], cutoff=1))
+            # Always start with base and end with EEF
+            chromosome = []
+            base_id = self.rng.choice(self.base_ids, p=p_bases)
+            chromosome.append(self.id2num[base_id])
+            
+            # Build the middle part with strict alternation (Link->Joint->Link->Joint...)
+            num_middle = population_size[1] - 2  # Subtract base and end effector
+            
+            for i in range(num_middle):
+                if i % 2 == 0:  # Even positions after base = linkages
+                    link_id = self.rng.choice(self.link_ids, p=p_links)
+                    chromosome.append(self.id2num[link_id])
+                else:  # Odd positions after base = joints
+                    joint_id = self.rng.choice(self.joint_ids, p=p_joints)
+                    chromosome.append(self.id2num[joint_id])
+            for i in range(1, num_middle, 2):
+                max_iter = 0
+                #print(self._map_genes_to_id(chromosome))
+                joint1, joint2 = extract_joints_from_link(self._map_genes_to_id([chromosome[i]])[0])
+                while joint1 not in self._map_genes_to_id([chromosome[i-1]])[0] or joint2 not in self._map_genes_to_id([chromosome[i+1]])[0]:
+                    if max_iter > 1000:
+                        print("failed to find correct linkage for joints")
+                        break
+                    link_id = self.rng.choice(self.link_ids)
+                    #print(self._map_genes_to_id([chromosome[i-1]])[0], link_id, self._map_genes_to_id([chromosome[i+1]])[0])
+                    joint1, joint2 = extract_joints_from_link(link_id)
+                    max_iter += 1
+                chromosome[i] = self.id2num[link_id]
 
-                connector_parent = self.G.edges[shortest_path[0][0]]['connectors'][0]
-                connector_child = self.G.edges[shortest_path[0][0]]['connectors'][1]
-                neighbors_parent = set(self.G.neighbors(path[loc]))
-                neighbors_child = set(self.G.neighbors(path[loc_next]))
-                shared = [m for m in neighbors_parent.intersection(neighbors_child)
-                          if not any(con.type in {'base', 'eef'} for con in m.available_connectors.values())]
-                if connector_child.connects(connector_parent):
-                    shared.append(self.__empty_slot)
-                weights = np.array([module_weights[m if m == self.__empty_slot else m.id] for m in shared])
-                p_draw = weights / weights.sum()
-                shared = np.array(shared)[p_draw > 0]
-                draw = self.rng.choice(shared, size=len(shared), replace=False, p=p_draw[p_draw > 0], shuffle=False)
-                for m in draw:
-                    if m == self.__empty_slot:
-                        path.insert(loc_next, self.__empty_slot)
-                        break
-                    c_x1 = list(m.available_connectors.values())[0]
-                    c_x2 = list(m.available_connectors.values())[1]
-                    # check if the two connectors are compatible
-                    if (connector_parent.connects(c_x2) and connector_child.connects(c_x1)) \
-                            or (connector_parent.connects(c_x1) and connector_child.connects(c_x2)):
-                        path.insert(loc_next, m)
-                        break
-            for i in range(len(path)):
-                path[i] = self.id2num[path[i].id if path[i] != self.__empty_slot else self.__empty_slot]
-            initial_population.append(path)
+            # Add end effector at the end
+            eef_id = self.rng.choice(self.eef_ids, p=p_eef)
+            chromosome.append(self.id2num[eef_id])
+            
+            initial_population.append(chromosome)
 
         return np.array(initial_population)
+    # def _get_initial_population(self,
+    #                             population_size: Tuple[int, int],
+    #                             module_weights: Optional[Dict[str, float]] = None
+    #                             ) -> np.ndarray:
+    #     """
+    #     Generates the initial population for the genetic algorithm.
+
+    #     It returns a list of chromosomes, where each chromosome represents a potential solution. It extends the shortest
+    #     paths to a desired length by successively adding detours of length 1. Each chromosome is a list of genes, where
+    #     each gene represents a module. The first gene is the base, the last gene is the end effector, and the genes in
+    #     between are links and joints. The length of the chromosome equals to the gene_len.
+
+    #     :param population_size: The size of the initial population as a tuple of (num_offsprings, num_genes).
+    #     :param module_weights: A dictionary, mapping each module ID in the database to be optimized to a
+    #         weight that determines how likely it is to be chosen as a replacement during mutation.
+    #     """
+    #     module_weights = module_weights if module_weights is not None else dict.fromkeys(self.all_modules, 1.)
+    #     if not set(self.all_modules).issubset(set(module_weights.keys())):
+    #         missing = set(self.all_modules).difference(set(module_weights.keys()))
+    #         raise ValueError(f"Modules {missing} are not covered by the mutation weights!")
+
+    #     p_bases = np.array([module_weights[_id] for _id in self.base_ids])
+    #     p_eef = np.array([module_weights[_id] for _id in self.eef_ids])
+    #     p_bases = p_bases / p_bases.sum()
+    #     p_eef = p_eef / p_eef.sum()
+
+    #     initial_population = []
+    #     for _ in range(population_size[0]):
+    #         base = self.db.by_id[self.rng.choice(self.base_ids, p=p_bases)]
+    #         eef = self.db.by_id[self.rng.choice(self.eef_ids, p=p_eef)]
+    #         path = nx.shortest_path(self.G, base, eef)
+    #         while len(path) < population_size[1]:
+    #             # return edge connecting the two modules in the randomly selected location
+    #             if len(path) == 2:
+    #                 loc = 0  # Numpy rng.integers() does not support high=0
+    #             else:
+    #                 loc = self.rng.integers(low=0, high=len(path) - 1)
+    #             if path[loc] == self.__empty_slot:
+    #                 continue
+    #             loc_next = loc + 1
+    #             while path[loc_next] == self.__empty_slot:
+    #                 loc_next = loc_next + 1
+    #             if path[loc] is path[loc_next]:
+    #                 num_edges = self.G.number_of_edges(path[loc], path[loc_next])
+    #                 rand_edge = self.rng.integers(0, num_edges - 1)
+    #                 shortest_path = [[(path[loc], path[loc_next], rand_edge)]]
+    #             else:
+    #                 shortest_path = list(nx.all_simple_edge_paths(self.G, path[loc], path[loc_next], cutoff=1))
+
+    #             connector_parent = self.G.edges[shortest_path[0][0]]['connectors'][0]
+    #             connector_child = self.G.edges[shortest_path[0][0]]['connectors'][1]
+    #             neighbors_parent = set(self.G.neighbors(path[loc]))
+    #             neighbors_child = set(self.G.neighbors(path[loc_next]))
+    #             shared = [m for m in neighbors_parent.intersection(neighbors_child)
+    #                       if not any(con.type in {'base', 'eef'} for con in m.available_connectors.values())]
+    #             if connector_child.connects(connector_parent):
+    #                 shared.append(self.__empty_slot)
+    #             weights = np.array([module_weights[m if m == self.__empty_slot else m.id] for m in shared])
+    #             p_draw = weights / weights.sum()
+    #             shared = np.array(shared)[p_draw > 0]
+    #             draw = self.rng.choice(shared, size=len(shared), replace=False, p=p_draw[p_draw > 0], shuffle=False)
+    #             for m in draw:
+    #                 if m == self.__empty_slot:
+    #                     path.insert(loc_next, self.__empty_slot)
+    #                     break
+    #                 c_x1 = list(m.available_connectors.values())[0]
+    #                 c_x2 = list(m.available_connectors.values())[1]
+    #                 # check if the two connectors are compatible
+    #                 if (connector_parent.connects(c_x2) and connector_child.connects(c_x1)) \
+    #                         or (connector_parent.connects(c_x1) and connector_child.connects(c_x2)):
+    #                     path.insert(loc_next, m)
+    #                     break
+    #         for i in range(len(path)):
+    #             path[i] = self.id2num[path[i].id if path[i] != self.__empty_slot else self.__empty_slot]
+    #         initial_population.append(path)
+
+    #     return np.array(initial_population)

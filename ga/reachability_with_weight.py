@@ -266,7 +266,7 @@ class Reachability_with_weight():
 
         fig.show()
         
-    def reachability_random_sample(self, num_samples, mass=1):
+    def reachability_random_sample(self, num_samples, mass=0):
         """Reachable points with their manipulability index."""
         reachable_points = set()
 
@@ -284,7 +284,7 @@ class Reachability_with_weight():
                 # dexterous and more susceptible to singularities.
                 manipulability_idk = self.robot.manipulability_index(q)
                 reachable_points.add((end_effector_pose, manipulability_idk))  
-                
+        
         return list(reachable_points)
     
     def plot_interactive_reachability_with_manipulability(self, reachable, manipulability):

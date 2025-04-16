@@ -183,6 +183,7 @@ from datetime import date
 from timor.utilities.transformation import Transformation
 from timor.utilities.spatial import rotX, rotY, rotZ
 from timor.Module import AtomicModule, ModulesDB, ModuleHeader
+from timor.Bodies import Body, Connector, Gender
 author = "Jonas Li, Jae Won Kim" # Add other team memeber names
 email = "liyunzhe.jonas@berkeley.edu"
 affiliation = "UC Berkeley"
@@ -195,6 +196,7 @@ def generate_header(header_id, header_name):
                         email=email,
                         affiliation=affiliation
                         )
+# [m, f]
 def read_rod_trans(rod_name, length, diameter):
     if rod_name == "baseto4310":
         ROT_X = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
@@ -216,7 +218,63 @@ def read_rod_trans(rod_name, length, diameter):
         config_1 = [ROT_Z_180 @ ROT_Y @ Transformation.from_translation([0, length/2-diameter/2, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
         config_2 = [ROT_Z_90 @ ROT_X_90 @ ROT_Y_180 @ Transformation.from_translation([0, length/2-diameter/2, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
         return config_1
+    elif rod_name == 'baseto330_1':
+        ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+        ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
+        ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
+        ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, 0.03])] #second one connect to base
+    elif rod_name == "baseto330_2":
+        ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+        ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
     
+    elif rod_name == 'default':
+        ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]), Transformation.from_translation([0, 0, length/2])]
+    elif rod_name == 'test':
+        ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+        ROT_X_90 = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
+        ROT_X_Reverse_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
+        ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
+        ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
+        ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X, Transformation.from_translation([0, -2*diameter, length/2 + diameter])]
+
+def fetch_joint_trans(joint_name, length, diameter, gender):
+    ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
+    ROT_X_90 = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
+    ROT_X_Reverse_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
+    ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
+    ROT_Y_Reverse_90 = Transformation.from_rotation(rotY(-np.pi/2)[:3, :3])
+    ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
+    ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
+    ROT_Z_Reverse_90 = Transformation.from_rotation(rotZ(-np.pi/2)[:3, :3])
+    if joint_name == '540_base':
+        if gender == Gender.f:
+            return [Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, 0.03]),
+                    Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
+        else:
+            return []
+    elif joint_name == '330_joint':
+        if gender == Gender.f:
+            return [Transformation.from_translation([0, 0, length/2 + 0.0167038367716975]), Transformation.from_translation([0, 0, length/2 + 0.0167038367716975]) @ ROT_X @ ROT_X_90 @ Transformation.from_translation([0, diameter, diameter])] #TODO
+        elif gender == Gender.m:
+            return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, -diameter/2])]
+
+    elif joint_name == '430_joint':
+        if gender == Gender.f:
+            return []
+        elif gender == Gender.m:
+            return []
+    
+    elif joint_name == '540_joint':
+        if gender == Gender.f:
+            return [Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ ROT_Z_Reverse_90 @ Transformation.from_translation([0, -2.2*diameter, 0.03]),Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, -2.8*diameter, 0.03])]
+        elif gender == Gender.m:
+            return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X, ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X_Reverse_90 @ Transformation.from_translation([0, diameter/2, -1.5*diameter])]
+    else:
+        return []
 # def read_rod_trans(rod_name, length, diameter):
 #     ROT_X = Transformation.from_rotation(rotX(-np.pi)[:3, :3])
 #     return [ROT_X @ Transformation.from_translation([0, 0, length / 2]), Transformation.from_translation([0, 0, length / 2])]

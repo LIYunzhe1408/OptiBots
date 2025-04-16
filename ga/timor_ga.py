@@ -1,6 +1,7 @@
 import numpy as np
 import timor
 import argparse
+import sys
 import pygad
 import os
 from util import *
@@ -12,7 +13,8 @@ from timor.utilities.visualization import animation
 from tqdm import tqdm
 from timor import ModuleAssembly, ModulesDB
 from timor.Bodies import Body, Connector, Gender
-from timor.configuration_search.GA import GA
+#from timor.configuration_search.GA import GA
+from GA import GA
 from timor.utilities.visualization import MeshcatVisualizer, clear_visualizer
 from timor.utilities.dtypes import Lexicographic
 from timor.utilities.transformation import Transformation
@@ -20,24 +22,23 @@ from timor.utilities.spatial import rotX, rotY, rotZ
 from timor.Module import AtomicModule, ModulesDB, ModuleHeader
 from timor.Joints import Joint
 from timor.Geometry import Box, ComposedGeometry, Cylinder, Sphere, Mesh
+from timor.task.Obstacle import Obstacle
+from timor.task.Task import Task, TaskHeader
 
 from reachability import Reachability
 from reachability_with_weight import Reachability_with_weight
-from generate_module import create_i_links, create_eef, create_revolute_joint
+from generate_module import create_i_links, create_eef, create_revolute_joint, generate_i_links
+
+project_root = os.path.abspath(os.path.join(os.getcwd(), '../'))
+sys.path.append(project_root)
+
+from random_env_generation.random_env_generation import plot_random_cuboids, plot_random_cuboids_with_reachability, plot_reachability_interactive
 
 how_many_times_to_split_angle_range = 30
 world_resolution = 0.01
 world_dimension = [1.00, 1.00, 1.00]
 num_threads = 5
-our_hyperparameters = {
-    'population_size': 40,
-    'num_generations': 200,
-    'num_genes': 20,
- #   'parallel_processing': ['process', 3],
-    # 'mutation_probability':0, 
-    # 'crossover_probability':0,
-    'save_solutions_dir': None
-}
+
 ga_args = {
     'parallel_processing': ['process', 30],
 }
@@ -46,8 +47,8 @@ db = None
 improved_hyperparameters = {
     'num_generations': 200,
     'num_parents_mating': 15,
-    'population_size': 50,
-    'num_genes': 20,
+    'population_size': 30,
+    'num_genes': 14,
     'keep_parents': 1,
     # 'crossover_type': "uniform",
     # 'mutation_type': "adaptive",
@@ -69,7 +70,46 @@ improved_hyperparameters = {
 #     'init_range_high': 10
 # }
 
-NUM_SAMPLE = 100000
+our_hyperparameters = {
+    'population_size': 20,
+    'num_generations': 150,
+    'num_genes': 14,
+    'keep_parents': 1,
+    #'gene_space': constrained_gene_space(),
+    'save_solutions_dir': None
+}
+#6659
+NUM_SAMPLE = 5000 #100000 
+
+def generate_tasks(n):
+    tasks = []
+    for i in range(n):
+        cuboid_data_list = plot_random_cuboids()
+        header = TaskHeader(
+            ID='Random Obstacles Generation v: ' + str(i) ,
+            tags=['Capstone', 'demo'],
+            date=datetime.datetime(2024, 10, 28),
+            author=['Jonas Li, Jae Won Kim'],
+            email=['liyunzhe.jonas@berkeley.edu, jaewon_kim@berkeley.edu'],
+            affiliation=['UC Berkeley']
+        )
+        with open("tasks.txt", "w") as f:
+            for item in cuboid_data_list:
+                f.write(f"{item}\n")
+        box = []
+        for idx, info in enumerate(cuboid_data_list):
+            size, displacement = info["size"], info["origin"]
+            box.append(Obstacle(ID=str(idx), 
+                        collision=Box(
+                            dict(x=size['x'], y=size['y'], z=size['z']),  # Size
+                            pose=Transformation.from_translation([displacement['x'] + size['x'] / 2, displacement['y'] + size['y'] / 2, displacement['z'] + size['z'] / 2])
+                        )))
+        task = Task(header, obstacles=[i for i in box])
+        tasks.append(task)
+    return tasks
+
+TASKS = generate_tasks(3)
+  # each element on a new line
 def num_incorrect_connections(moduleAssembly):
     """
     Checks if a list of modules is ordered correctly according to these rules:
@@ -92,8 +132,8 @@ def num_incorrect_connections(moduleAssembly):
     # Helper function to extract joint names from a link
     def extract_joints_from_link(link):
         # Handle different link naming patterns
-        if "to" in link:
-            parts = link.split("to")
+        if "-to-" in link:
+            parts = link.split("-to-")
             # Extract parts before 'to' and after 'to' (before any dash)
             first_joint = parts[0]
             second_joint = parts[1].split("-")[0] if "-" in parts[1] else parts[1]
@@ -102,19 +142,23 @@ def num_incorrect_connections(moduleAssembly):
     
     # Helper function to check if a module is a joint
     def is_joint(module):
-        return "joint" in module or module == "eef"
+        return "-to-" not in module
+        #return "joint" in module or module == "eef"
         #return "J" in module or module == "eef"
     
     # Helper function to check if a module is a link
     def is_link(module):
-        return "-" in module and "to" in module
+        return "-to-" in module
+        #return "-" in module and "to" in module
         #return "i" in module or "l" in module
     
     # Check alternating pattern and correct linkage
-    for i in range(len(modules) - 2):
+    for i in range(len(modules) - 1):
         current = modules[i]
         next_module = modules[i + 1]
-        
+        if next_module == 'eef':
+            continue
+
         # Check alternating pattern
         if is_joint(current) and is_joint(next_module):
             # Two joints in a row - should have a link between them
@@ -131,7 +175,7 @@ def num_incorrect_connections(moduleAssembly):
         # If current is a joint and next is a link, verify the link connects to this joint
         if is_joint(current) and is_link(next_module):
             first_joint, second_joint = extract_joints_from_link(next_module)
-            joint_base_name = current.replace("_rev_joint", "").replace("_joint", "")
+            joint_base_name = current #.replace("_rev_joint", "").replace("_joint", "")
             
             if not (first_joint in joint_base_name):
                 #return (first_joint, joint_base_name)
@@ -141,7 +185,7 @@ def num_incorrect_connections(moduleAssembly):
         # If current is a link and next is a joint, verify the link connects to the next joint
         if is_link(current) and is_joint(next_module):
             first_joint, second_joint = extract_joints_from_link(current)
-            joint_base_name = next_module.replace("_rev_joint", "").replace("_joint", "")
+            joint_base_name = next_module #.replace("_rev_joint", "").replace("_joint", "")
             
             if not (second_joint in joint_base_name):
                 #return (joint_base_name, second_joint)
@@ -158,22 +202,29 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
     - the second value the minus of the total mass
     """
     #TODO - include reachability metric and max weight calculations in this fitness function
+
     robot = assembly.to_pin_robot()
     num_i = num_incorrect_connections(assembly)
-    if robot.has_self_collision():
-        return Lexicographic(-10,-100, -10)
-    elif num_i != 0:
-        return Lexicographic(-num_i*10/assembly.nModules, -assembly.nModules, -assembly.nJoints)
+    # if robot.has_self_collision():
+    #     return Lexicographic(-10000,-100, -10)
+    if num_i != 0:
+        return Lexicographic(-num_i/assembly.nModules, -10 * assembly.nJoints, -10 * assembly.nModules)
     #reachability = Reachability(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
-    
-    reachability = Reachability_with_weight(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
-    valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE)
-    reachable, manipulability =  zip(*valid_poses)
-    reachable = np.array([list(pt) for pt in reachable])
-    reachability_score = reachability.find_reachibility_percentage(valid_pose=reachable)
+
+    reachability_score = 0
+    for task in TASKS:
+        reachability = Reachability_with_weight(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution, task=task)
+        valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE, mass=0.7)
+        if not valid_poses:
+            reachability_score += 0
+            # return Lexicographic(0, -10 * assembly.nJoints, -10 * assembly.nModules)
+        else:
+            reachable, manipulability =  zip(*valid_poses)
+            reachable = np.array([list(pt) for pt in reachable])
+            reachability_score += reachability.find_reachibility_percentage(valid_pose=reachable)
     #reachability_score = len(valid_poses)/NUM_SAMPLE
     num_links = assembly.nModules - assembly.nJoints - 1
-    return Lexicographic(reachability_score, -assembly.nModules, -assembly.nJoints)
+    return Lexicographic(reachability_score * 100, -10 * assembly.nJoints, -10 * assembly.nModules)
 
 def on_generation(ga):
     print("Last generation fitness: ", ga.last_generation_fitness)
@@ -219,8 +270,9 @@ def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames
 
 def optimize(db, hyperparameters):
     ga = GA(db, custom_hp=hyperparameters) 
+    #print("Initial Population: ", ga._get_initial_population())
 
-    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 50), on_generation=on_generation)
+    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 36), on_generation=on_generation)
     num2id = {v: k for k, v in ga.id2num.items()} 
     module_ids = [num2id[num] for num in ga_optimizer.best_solution()[0]]
 
@@ -234,40 +286,31 @@ def filter(module):
 
 def main(hyperparameters = None, visualize = False):
 
-    # Base and joint
-    r_4310_base = create_revolute_joint("assets/Assem_4310_BASE/Assem_4310_BASE/urdf/Assem_4310_BASE.urdf")
-    r_4305_joint = create_revolute_joint("assets/Assem_4305_JOINT/Assem_4305_JOINT/urdf/Assem_4305_JOINT.urdf")
-    r_4310_joint = create_revolute_joint("assets/Assem_4310_JOINT/Assem_4310_JOINT/urdf/Assem_4310_JOINT.urdf")
 
-    # Links
-    baseto4310_links = create_i_links(rod_name="baseto4310")
-    r4310to4305_links = create_i_links(rod_name="r4310to4305")
-    r4310to4310_links = create_i_links(rod_name="r4310to4310")
 
     eef = create_eef()
+    #r_430_joint = create_revolute_joint("assets/430_joint/430_joint/urdf/430_joint.urdf")
+    r_330_joint = create_revolute_joint("assets/330_joint/330_joint/urdf/330_joint.urdf")
+    r_540_joint = create_revolute_joint("assets/540_joint/540_joint/urdf/540_joint.zip.urdf")
+    r_540_base = create_revolute_joint("assets/540_base/540_base/urdf/540_base.urdf")
 
+    generated_links = generate_i_links(r_540_base, [r_540_joint, r_330_joint])
     # Create database
     global db
     db = ModulesDB()
-    db.add(r_4310_base)
-    db.add(r_4310_joint)
-    #db.add(r_4305_joint)
-    db = db.union(baseto4310_links)
-    #db = db.union(r4310to4305_links)
-    db = db.union(r4310to4310_links)
+    db.add(r_330_joint)
+    #db.add(r_430_joint)
+    db.add(r_540_joint)
+    db.add(r_540_base)
+
     db = db.union(eef)
+    db = db.union(generated_links)
     viz = db.debug_visualization()
-    # print(db)
-    # print(db.all_joints)
-    # print(db.all_connectors)
-    # print(db.by_name)
-    # print(db.by_id)
-    # print(db.by_id)
-    # print(list(baseto4310_links.by_id.keys()))
+
     
-    baseNames = [r_4310_base.id]
+    #baseNames = [r_4310_base.id]
     # print(baseNames)
-    eefNames = list(eef.by_id.keys())
+    #eefNames = list(eef.by_id.keys())
     # print(eefNames)
 
     # from timor.utilities.file_locations import get_module_db_files
