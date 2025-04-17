@@ -69,7 +69,7 @@ improved_hyperparameters = {
 #     'init_range_low': -10,             # Wider initial range
 #     'init_range_high': 10
 # }
-
+NUM2ID = {}
 our_hyperparameters = {
     'population_size': 20,
     'num_generations': 150,
@@ -228,10 +228,18 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
 
 def on_generation(ga):
     print("Last generation fitness: ", ga.last_generation_fitness)
-
+    print("Best Fitness: ", ga.best_solutions_fitness)
     with open("generation_fitness.txt", "a") as file:  # Open file in append mode
         file.write(f"Last generation fitness: {ga.last_generation_fitness}\n")
-        
+    
+    #num2id = {v: k for k, v in ga.id2num.items()}
+    solution_module = [] 
+    #print("Num2ID: ", NUM2ID)
+    for solution in ga.best_solutions:
+        solution_module.append([NUM2ID[num] for num in solution])
+    with open("best_solution.txt", "a") as file:  # Open file in append mode
+        file.write(f"Best fitness: {ga.best_solutions_fitness}\n")
+        file.write(f"Best solution: {solution_module}\n\n")
 
 
 def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, startDOF, endDOF):
@@ -269,11 +277,18 @@ def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames
 
 
 def optimize(db, hyperparameters):
-    ga = GA(db, custom_hp=hyperparameters) 
+    print("Optimize start")
+    ga = GA(db, custom_hp=hyperparameters)
+    print("GA instance created")
+    num2id = {v: k for k, v in ga.id2num.items()} 
+    #print(num2id)
+    global NUM2ID
+    NUM2ID = num2id
+    #print("Num2ID: ", NUM2ID)
     #print("Initial Population: ", ga._get_initial_population())
 
     ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 36), on_generation=on_generation)
-    num2id = {v: k for k, v in ga.id2num.items()} 
+    
     module_ids = [num2id[num] for num in ga_optimizer.best_solution()[0]]
 
     return (module_ids, ga)
@@ -289,17 +304,17 @@ def main(hyperparameters = None, visualize = False):
 
 
     eef = create_eef()
-    #r_430_joint = create_revolute_joint("assets/430_joint/430_joint/urdf/430_joint.urdf")
+    r_430_joint = create_revolute_joint("assets/430_joint/430_joint/urdf/430_joint.urdf")
     r_330_joint = create_revolute_joint("assets/330_joint/330_joint/urdf/330_joint.urdf")
     r_540_joint = create_revolute_joint("assets/540_joint/540_joint/urdf/540_joint.zip.urdf")
     r_540_base = create_revolute_joint("assets/540_base/540_base/urdf/540_base.urdf")
 
-    generated_links = generate_i_links(r_540_base, [r_540_joint, r_330_joint])
+    generated_links = generate_i_links(r_540_base, [r_540_joint, r_330_joint, r_430_joint])
     # Create database
     global db
     db = ModulesDB()
     db.add(r_330_joint)
-    #db.add(r_430_joint)
+    db.add(r_430_joint)
     db.add(r_540_joint)
     db.add(r_540_base)
 
