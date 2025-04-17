@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="330_joint">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.0030419 1.9966E-05 0.012673"
+        rpy="0 0 0" />
+      <mass
+        value="0.044407" />
+      <inertia
+        ixx="1.2854E-05"
+        ixy="-2.668E-09"
+        ixz="5.6649E-07"
+        iyy="1.3347E-05"
+        iyz="-8.403E-11"
+        izz="6.139E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://330_joint/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://330_joint/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Adaptor_Link">
+    <inertial>
+      <origin
+        xyz="0 0.000962217084485531 0.0167038367716975"
+        rpy="0 0 0" />
+      <mass
+        value="0.0172446569319253" />
+      <inertia
+        ixx="3.81996295093174E-06"
+        ixy="3.08349257978459E-22"
+        ixz="1.23753267555244E-22"
+        iyy="4.03700901328837E-06"
+        iyz="-1.70511681168816E-07"
+        izz="3.04173251340529E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://330_joint/meshes/Adaptor_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://330_joint/meshes/Adaptor_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Adaptor_joint"
+    type="continuous">
+    <origin
+      xyz="0.0201000000000003 -0.0147 0.0245999999999999"
+      rpy="-1.5707963267949 0 3.14159265358979" />
+    <parent
+      link="base_link" />
+    <child
+      link="Adaptor_Link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+</robot>

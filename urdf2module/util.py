@@ -119,6 +119,14 @@ def rpy_to_rotation_matrix(rpy):
     # Rotation order: Rz (yaw) * Ry (pitch) * Rx (roll)
     return Rz @ Ry @ Rx
 
+def create_homogeneous_matrix(xyz, rpy):
+    """Create 4x4 homogeneous transformation matrix from xyz and rpy"""
+    R = rpy_to_rotation_matrix([rpy[0], rpy[1], rpy[2]])
+    T = np.eye(4)
+    T[:3, :3] = R
+    T[:3, 3] = xyz
+    return T
+
 def urdf_to_dict(urdf_file_path):
     """
     Converts a URDF file into a Python dictionary.
