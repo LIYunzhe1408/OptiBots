@@ -8,6 +8,7 @@ from pathlib import Path
 import plotly.graph_objects as go 
 from math import ceil
 import ray
+from scipy.spatial import KDTree
 
 import timor
 from timor.utilities import prebuilt_robots
@@ -228,6 +229,78 @@ class Reachability:
         # plt.show()
         
         return round(occupied_voxels / total_voxels * 100, 2)
+    
+    def specific_pose_valid(self, theta):
+        """
+        Given a robot at a specific pose, evaluate whether it is a valid pose (contains no collision).
+        TODO: reach target pose from the previous pose
+
+        Args:
+            robot (timor.Robot.PinRobot): robot
+            theta (list[float]): joint angles configuration
+
+        Returns:
+            The pose of the end effector if valid, otherwise returns None
+        """	
+        if theta in self.valid_configs:
+            return True
+        
+        robot = self.robot
+        g = self.robot.fk(theta, collision=True)
+        self_collision = robot.has_self_collision()
+        collisions = False if self.task is None else robot.has_collisions(self.task, safety_margin = 0) # TODO may need to alter safety margin
+        valid_pose = not (collisions or self_collision)
+        
+        if valid_pose:
+            self.valid_configs.add(theta)
+        
+        return valid_pose
+    
+
+    def find_trajectory_bidirectional_kdtree(self, base_config, target_config, max_rrt_iters=5000, rrt_step_size=0.1, target_distance_thresh=0.3):
+        forward_tree = [base_config]
+        backward_tree = [target_config]
+        
+        # Track parents for path reconstruction
+        forward_parents = {0: -1}
+        backward_parents = {0: -1}
+        
+        joint_limits = self.robot.joint_limits
+        low_bounds, high_bounds = joint_limits[0], joint_limits[1]
+        
+        for i in range(max_rrt_iters):
+            forward_kdtree = KDTree(forward_tree)
+            backward_kdtree = KDTree(backward_tree)
+            
+            # Grow forward tree
+            random_config = np.random.uniform(low_bounds, high_bounds)
+            forward_idx = forward_kdtree.query(random_config.reshape(1, -1), k=1)[1][0]
+            nearest_config = forward_tree[forward_idx]
+            
+            # Step toward random configuration
+            direction = random_config - nearest_config
+            norm = np.linalg.norm(direction)
+            if norm > 0:
+                new_config = np.array([round(j, 3) for j in (nearest_config + rrt_step_size * direction / norm)])
+                
+                if self.specific_pose_valid(tuple(new_config)):
+                    forward_parents[len(forward_tree)] = forward_idx
+                    forward_tree.append(new_config)
+                    
+                    # Try to connect backward tree to this new node
+                    backward_idx = backward_kdtree.query(new_config.reshape(1, -1), k=1)[1][0]
+                    backward_node = backward_tree[backward_idx]
+                    
+                    if np.linalg.norm(new_config - backward_node) < target_distance_thresh:
+                        # Trees are close enough - no need to reconstruct path
+                        return True
+            
+            # Swap trees and repeat (alternating growth)
+            forward_tree, backward_tree = backward_tree, forward_tree
+            forward_parents, backward_parents = backward_parents, forward_parents
+            forward_kdtree, backward_kdtree = backward_kdtree, forward_kdtree
+        
+        return None
 
     
     
