@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(540_base)
+project(base_motor.SLDASM)
 
 find_package(catkin REQUIRED)
 

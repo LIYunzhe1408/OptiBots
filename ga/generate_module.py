@@ -292,6 +292,8 @@ def create_revolute_joint(urdf_path: str):
     ROTATE_PROXIMAL = ROT_X @ ROT_X if c_type == 'base' else EYE
     ROTATE_DISTAL = EYE if c_type == 'base' else EYE #Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
 
+    MOVE_P = Transformation.from_translation([0, 0, 0]) if module_name == '540_joint' else Transformation.from_translation([0,0,0])
+    MOVE_D = Transformation.from_translation([0, 0, 0]) if module_name == '540_joint' else Transformation.from_translation([0,0,0])
     proximal_connector = Connector(
                                     connector_id=module_name + proximal_name+"connector",
                                     body2connector=ROTATE_PROXIMAL @ Transformation.from_roto_translation(
@@ -331,8 +333,11 @@ def create_revolute_joint(urdf_path: str):
     
     ROTATE_JOINT_P = rpy_to_rotation_matrix([np.pi/2, 0, 0])
     ROTATE_JOINT_C = rpy_to_rotation_matrix([-np.pi/2, 0, 0])
-    ROTATE_JOINT_P = rpy_to_rotation_matrix([0, 0, 0])
-    ROTATE_JOINT_C = rpy_to_rotation_matrix([0, 0, 0])
+    ROTATE_JOINT_P = rpy_to_rotation_matrix([0, 0, 0]) if module_name != '540_joint' else rpy_to_rotation_matrix([np.pi/2, 0, 0])
+    ROTATE_JOINT_C = rpy_to_rotation_matrix([0, 0, 0]) if module_name != '540_joint' else rpy_to_rotation_matrix([-np.pi/2, 0, 0])
+    MOVE_JOINT_P = Transformation.from_translation([0, 0, diameter*1.2]) if module_name == '540_joint' else Transformation.from_translation([0,0,0])
+    MOVE_JOINT_C = Transformation.from_translation([0, -diameter*1.2, 0]) if module_name == '540_joint' else Transformation.from_translation([0,0,0])
+    
     r_joint = Joint(
         joint_id=module_name,
         joint_type=joint['type'],
@@ -342,11 +347,11 @@ def create_revolute_joint(urdf_path: str):
         torque_limit=1000,
         acceleration_limit=5,
         velocity_limit=10,
-        parent2joint=Transformation.from_roto_translation(
+        parent2joint=MOVE_JOINT_P @Transformation.from_roto_translation(
                                                     R=rpy_to_rotation_matrix([float(x) for x in joint['origin']['rpy'].split(" ")]) @ ROTATE_JOINT_P,
                                                     p=joint['origin']['xyz'].split(" ")
                                 ),
-        joint2child=Transformation.from_roto_translation(
+        joint2child=MOVE_JOINT_C @ Transformation.from_roto_translation(
                                                     R=rpy_to_rotation_matrix(np.array([0, 0, 0])) @ ROTATE_JOINT_C,
                                                     p=np.array([0, -0.0, 0])
                                 )

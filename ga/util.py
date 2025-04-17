@@ -225,15 +225,17 @@ def read_rod_trans(rod_name, length, diameter):
         ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
         return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, 0.03])] #second one connect to base
     elif rod_name == "baseto330_2":
+        ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
         ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
         ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
-        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y, Transformation.from_translation([0, 0, length/2]) @ Transformation.from_rotation(rotX(np.pi/40)[:3, :3]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, 1.75 * diameter])]
     
     elif rod_name == "baseto430_2":
         ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
         ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
         ROT_X_90 = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
-        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y @ Transformation.from_translation([0, 0.75*diameter, -1.75*diameter]), Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
+        ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_Y @ Transformation.from_translation([0, 0.75*diameter, -1.75*diameter]), Transformation.from_translation([0, 0, length/2 + diameter + 0.005]) @ Transformation.from_rotation(rotZ(np.pi/18)[:3, :3])]
     
     elif rod_name == 'default':
         ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
@@ -258,8 +260,9 @@ def fetch_joint_trans(joint_name, length, diameter, gender):
     ROT_Z_Reverse_90 = Transformation.from_rotation(rotZ(-np.pi/2)[:3, :3])
     if joint_name == '540_base':
         if gender == Gender.f:
-            return [Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, 0.03]),
-                    Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
+            return [Transformation.from_translation([0, 0, length/2 + diameter + 0.005]) @ Transformation.from_rotation(rotZ(np.pi/18)[:3, :3])]
+            #return [Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, 0.03]),
+             #       Transformation.from_translation([0, 0, length/2 + 0.0167038367716975])]
         else:
             return []
     elif joint_name == '330_joint':
