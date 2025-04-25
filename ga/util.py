@@ -247,7 +247,7 @@ def read_rod_trans(rod_name, length, diameter):
         ROT_Y = Transformation.from_rotation(rotY(np.pi)[:3, :3])
         ROT_Y_90 = Transformation.from_rotation(rotY(np.pi/2)[:3, :3])
         ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
-        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X, Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, 0, diameter])]
+        return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X @ Transformation.from_translation([0, 0, -diameter]), Transformation.from_translation([0, 0, length/2 + diameter + 0.005]) @ Transformation.from_rotation(rotZ(np.pi/18)[:3, :3])]
 
 def fetch_joint_trans(joint_name, length, diameter, gender):
     ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
@@ -281,7 +281,7 @@ def fetch_joint_trans(joint_name, length, diameter, gender):
         if gender == Gender.f:
             return [Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ ROT_Z_Reverse_90 @ Transformation.from_translation([0, -2.2*diameter, 0.03]),Transformation.from_translation([0, 0, length/2]) @ ROT_Y_90 @ Transformation.from_translation([diameter/2, -2.8*diameter, 0.03])]
         elif gender == Gender.m:
-            return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X, ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X_Reverse_90 @ Transformation.from_translation([0, diameter/2, -1.5*diameter])]
+            return [ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X @ Transformation.from_translation([0, 0, -diameter]), ROT_X @ Transformation.from_translation([0, 0, length/2]) @ ROT_X_Reverse_90 @ Transformation.from_translation([0, diameter/2, -1.5*diameter])]
     else:
         return []
 # def read_rod_trans(rod_name, length, diameter):

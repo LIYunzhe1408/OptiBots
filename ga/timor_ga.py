@@ -4,6 +4,8 @@ import argparse
 import sys
 import pygad
 import os
+import ray
+import time
 from util import *
 from timor.Module import *
 from timor.utilities.visualization import animation
@@ -27,6 +29,7 @@ from timor.task.Task import Task, TaskHeader
 
 from reachability import Reachability
 from reachability_with_weight import Reachability_with_weight
+from reachability_parallel import Reachability, generate_tasks
 from generate_module import create_i_links, create_eef, create_revolute_joint, generate_i_links
 
 project_root = os.path.abspath(os.path.join(os.getcwd(), '../'))
@@ -79,12 +82,12 @@ our_hyperparameters = {
     'save_solutions_dir': None
 }
 #6659
-NUM_SAMPLE = 5000 #100000 
+NUM_SAMPLE = 7000 #100000 
 
-def generate_tasks(n):
+def generate_tasks(n, num_obstacles=3):
     tasks = []
     for i in range(n):
-        cuboid_data_list = plot_random_cuboids()
+        cuboid_data_list = plot_random_cuboids(num_obstacles)
         header = TaskHeader(
             ID='Random Obstacles Generation v: ' + str(i) ,
             tags=['Capstone', 'demo'],
@@ -108,7 +111,7 @@ def generate_tasks(n):
         tasks.append(task)
     return tasks
 
-TASKS = generate_tasks(3)
+TASKS = generate_tasks(3, 20)
   # each element on a new line
 def num_incorrect_connections(moduleAssembly):
     """
@@ -193,7 +196,22 @@ def num_incorrect_connections(moduleAssembly):
                 #return False
     
     return num_incorrect_connections
-    
+
+def cost_of_robot(assembly: ModuleAssembly):
+    modules = list(assembly.original_module_ids)
+    total_cost = 0
+    for module in modules:
+        # 540_base cost is excluded since it is essential for every robot
+        if module == "540_joint":
+            total_cost += 473.96
+        elif module == "430_joint":
+            total_cost += 396.79
+        elif module == "330_joint":
+            total_cost += 99.11
+        else:
+            continue
+
+    return total_cost
 def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
     """
     This fitness function returns a lexicographic value, where the
@@ -205,26 +223,47 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
 
     robot = assembly.to_pin_robot()
     num_i = num_incorrect_connections(assembly)
+    cost = cost_of_robot(assembly)
     # if robot.has_self_collision():
     #     return Lexicographic(-10000,-100, -10)
     if num_i != 0:
-        return Lexicographic(-num_i/assembly.nModules, -10 * assembly.nJoints, -10 * assembly.nModules)
+        return Lexicographic(-num_i/assembly.nModules, -10000, -10 * assembly.nJoints, -10 * assembly.nModules, -1000)
     #reachability = Reachability(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution)
 
+    #print(len(TASKS))
     reachability_score = 0
     for task in TASKS:
-        reachability = Reachability_with_weight(robot=assembly.to_pin_robot(), angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution, task=task)
+        reachability = Reachability_with_weight(robot=robot, angle_interval=how_many_times_to_split_angle_range, world_resolution=world_resolution, task=task)
+        # reachability = Reachability(robot_modules=assembly.original_module_ids, task=task, db=db)
+        # reachability.reachability_random_sample_actors(num_samples = 5000, num_actors = 4, batch_size = 1000)
+        # reachability_score += reachability.find_reachibility_percentage(voxel_size = 0.1)
         valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE, mass=0.7)
         if not valid_poses:
             reachability_score += 0
-            # return Lexicographic(0, -10 * assembly.nJoints, -10 * assembly.nModules)
+            return Lexicographic(0, -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -1000)
         else:
-            reachable, manipulability =  zip(*valid_poses)
+            reachable = valid_poses
             reachable = np.array([list(pt) for pt in reachable])
             reachability_score += reachability.find_reachibility_percentage(valid_pose=reachable)
-    #reachability_score = len(valid_poses)/NUM_SAMPLE
     num_links = assembly.nModules - assembly.nJoints - 1
-    return Lexicographic(reachability_score * 100, -10 * assembly.nJoints, -10 * assembly.nModules)
+    return Lexicographic(reachability_score * 100 / len(TASKS), -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -assembly.mass * 100)
+
+# def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
+#     """
+#     This fitness function returns a lexicographic value, where the
+    
+#     - first value indicates the reachability score of the robot
+#     - second value the number of joints (DOF) (negative to incentivise lower values)
+#     - third value the number of modules (negative to incentivise lower values)
+#     """
+#     robot = assembly.to_pin_robot()
+#     reachability_score = 0
+#     for task in TASKS: # TASKS is defined and initiallized at the beginning of the script
+#         reachability = Reachability_with_weight(robot, angle_interval, world_resolution, task)
+#         reachability_score += reachability.reachability_random_sample(num_samples, mass)
+    
+#     return Lexicographic(reachability_score * 100 / len(TASKS), -10 * assembly.nJoints, -10 * assembly.nModules)
+
 
 def on_generation(ga):
     print("Last generation fitness: ", ga.last_generation_fitness)
@@ -287,7 +326,7 @@ def optimize(db, hyperparameters):
     #print("Num2ID: ", NUM2ID)
     #print("Initial Population: ", ga._get_initial_population())
 
-    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=('thread', 36), on_generation=on_generation)
+    ga_optimizer = ga.optimize(fitness_function=fitness_function, selection_type= "tournament", save_best_solutions=True, parallel_processing=("thread", 36), on_generation=on_generation)
     
     module_ids = [num2id[num] for num in ga_optimizer.best_solution()[0]]
 
@@ -309,7 +348,7 @@ def main(hyperparameters = None, visualize = False):
     r_540_joint = create_revolute_joint("assets/540_joint/540_joint/urdf/540_joint.zip.urdf")
     r_540_base = create_revolute_joint("assets/540_base/540_base/urdf/540_base.urdf")
 
-    generated_links = generate_i_links(r_540_base, [r_540_joint, r_330_joint, r_430_joint])
+    generated_links = generate_i_links(r_540_base, [r_330_joint, r_430_joint, r_540_joint])
     # Create database
     global db
     db = ModulesDB()
@@ -360,7 +399,7 @@ def main(hyperparameters = None, visualize = False):
 
 
 # ('base', 'i_45', 'J1', 'i_15', 'J2', 'i_45', 'J2', 'i_45', 'J1', 'i_15', 'J2', 'i_30', 'J2', 'i_45', 'J2', 'eef')
-
+# ('540_base', '540_base-to-330_joint-0.1-1-S', '330_joint', '330_joint-to-540_joint-0.1-3-W', '540_joint', '540_joint-to-430_joint-0.3-0-E', '430_joint', '430_joint-to-540_joint-0.15-0-W', '540_joint', '540_joint-to-330_joint-0.2-1-E', '330_joint', '330_joint-to-430_joint-0.2-0-N', 'EMPTY', 'eef'], ['540_base', '540_base-to-330_joint-0.1-1-S', '330_joint', '330_joint-to-540_joint-0.1-3-W', '540_joint', '540_joint-to-430_joint-0.3-0-E', '430_joint', '430_joint-to-540_joint-0.15-0-W', '540_joint', '540_joint-to-330_joint-0.2-1-E', '330_joint', '330_joint-to-430_joint-0.2-0-N', 'EMPTY', 'eef')
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
     # parser.add_argument("-v", "--visualize", action='store_true')

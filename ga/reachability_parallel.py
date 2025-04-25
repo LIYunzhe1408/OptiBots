@@ -23,7 +23,7 @@ from timor.utilities.visualization import animation
 from timor.Geometry import Box, ComposedGeometry, Cylinder
 
 
-SAFETY_MARGIN = 0.2
+SAFETY_MARGIN = 0.0
 EE_DOWNWARDS_AXIS = [0, 0, -1]
 db = ModulesDB()
 
@@ -97,7 +97,7 @@ class ReachabilityWorker:
     
 
 class Reachability:
-    def __init__(self, robot_modules, task = None, mass = 1, angle_interval = 20, world_min_dim = [-0.5, -0.5, 0.0], world_max_dim = [0.5, 0.5, 1.0]):
+    def __init__(self, robot_modules, db, task = None, mass = 1, angle_interval = 20, world_min_dim = [-0.5, -0.5, 0.0], world_max_dim = [0.5, 0.5, 1.0]):
         """Construct a reachability object
 
         Args:
@@ -122,12 +122,17 @@ class Reachability:
         
         self.valid_configs = set()
         self.valid_positions = []
+        self.db = db
         
-    def reachability_random_sample_actors(self, num_samples, num_actors = 4, batch_size = 1000):
+    def reachability_random_sample_actors(self, num_samples, num_actors = 4, batch_size = 1000, debug = False):
         """Parallel implementation of reachable points sampling using Ray actors."""
         if not ray.is_initialized():
-            ray.init()
-            
+            #ray.init()
+            ray.init(include_dashboard=False)
+        db = self.db
+        robot_modules = self.robot_modules
+        task = self.task
+        mass = self.mass
         # Create robot and task factory functions
         def pin_robot_factory():
             # Create a new instance of the robot
@@ -144,7 +149,8 @@ class Reachability:
         total_batches = num_actors * batches_per_actor
         
         # Launch parallel processing
-        print(f"Launching {total_batches} batches across {num_actors} actors...")
+        if debug:
+            print(f"Launching {total_batches} batches across {num_actors} actors...")
         futures = []
         for actor in actors:
             for _ in range(batches_per_actor):
@@ -163,7 +169,8 @@ class Reachability:
         
         # Update the reachability object with results, avoiding repetition
         self.valid_positions = np.array(list(set(all_valid_positions)))
-        print(f"Total valid poses found: {len(self.valid_positions)}")
+        if debug:
+            print(f"Total valid poses found: {len(self.valid_positions)}")
         return self.valid_positions
     
     
@@ -191,7 +198,7 @@ class Reachability:
         print(f"Reachability plot saved to {filename}")
         
         
-    def find_reachibility_percentage(self, voxel_size = 0.1):
+    def find_reachibility_percentage(self, voxel_size = 0.1, debug=False):
         """Calculate the percentage of the world space that is reachable by our robot configuration.
 
         Args:
@@ -217,9 +224,10 @@ class Reachability:
                         
         occupied_voxels = np.sum(voxel_grid)
         total_voxels = num_voxels_x * num_voxels_y * num_voxels_z     
-           
-        print("reachable count: ", occupied_voxels)
-        print("num voxels: ", total_voxels)
+        
+        if debug:
+            print("reachable count: ", occupied_voxels)
+            print("num voxels: ", total_voxels)
         
         # --- plot for debugging only ---
         # fig = plt.figure()
@@ -308,10 +316,10 @@ class Reachability:
         return None
 
     
-def generate_tasks(n):
+def generate_tasks(n, num_obstacles=3):
     tasks = []
     for i in range(n):
-        cuboid_data_list = plot_random_cuboids(3)
+        cuboid_data_list = plot_random_cuboids(num_obstacles)
         header = TaskHeader(
             ID='Random Obstacles Generation v: ' + str(i) ,
             tags=['Capstone', 'demo'],
@@ -358,7 +366,7 @@ if __name__ == "__main__":
     viz = db.debug_visualization()
         
     # Example of robot assembly 
-    modules = ('540_base', '540_base-to-540_joint-0.15-3-S', '540_joint', '540_joint-to-540_joint-0.15-3-S', '540_joint', '540_joint-to-540_joint-0.3-0-W', '540_joint', '540_joint-to-330_joint-0.15-1-W', '330_joint', '330_joint-to-330_joint-0.15-1-N', '330_joint', '330_joint-to-330_joint-0.3-1-S', '330_joint', '330_joint-to-330_joint-0.15-0-W', '330_joint', 'eef')
+    modules = ('540_base', '540_base-to-540_joint-0.15-1-S', '540_joint', '540_joint-to-540_joint-0.15-3-S', '540_joint', '540_joint-to-540_joint-0.3-0-W', '540_joint', '540_joint-to-330_joint-0.15-1-W', '330_joint', '330_joint-to-330_joint-0.15-1-N', '330_joint', '330_joint-to-330_joint-0.3-1-S', '330_joint', '330_joint-to-330_joint-0.15-0-W', '330_joint', 'eef')
     # B = ModuleAssembly.from_serial_modules(db, modules)
     
     # robot = B.to_pin_robot()
@@ -386,9 +394,10 @@ if __name__ == "__main__":
         task = task,
         world_min_dim = [-1.0, -1.0, -1.0], 
         world_max_dim = [1.0, 1.0, 1.0],
+        db=db,
     )
     
-    ray.init()
+    #ray.init()
     
     # Run parallel sampling with actors
     start_t = time.time()

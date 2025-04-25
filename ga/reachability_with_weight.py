@@ -33,7 +33,8 @@ class Reachability_with_weight():
         self.world_dim = world_dimension
         self.world_res = world_resolution
         self.rounding = int(-math.log10(world_resolution))
-        
+        self.valid_configs = set()
+        self.valid_positions = []
         self.valid_poses = []
         
         
@@ -266,26 +267,81 @@ class Reachability_with_weight():
 
         fig.show()
         
-    def reachability_random_sample(self, num_samples, mass=0):
-        """Reachable points with their manipulability index."""
-        reachable_points = set()
+    # def reachability_random_sample(self, num_samples, mass=0):
+    #     """Reachable points with their manipulability index."""
+    #     reachable_points = set()
 
-        for _ in tqdm(range(num_samples), disable=True):
-            q = self.robot.random_configuration()
-            end_effector_pose = self.check_pose_and_get_gripper_with_weight(q, mass)
-            if not self.robot.has_self_collision(q) and end_effector_pose is not None:
-                #tcp_pose = self.robot.fk(q)
-                #end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
+    #     for _ in tqdm(range(num_samples), disable=True):
+    #         q = self.robot.random_configuration()
+    #         end_effector_pose = self.check_pose_and_get_gripper_with_weight(q, mass)
+    #         if not self.robot.has_self_collision(q) and end_effector_pose is not None:
+    #             #tcp_pose = self.robot.fk(q)
+    #             #end_effector_pose = tuple(round(coord, 2) for coord in tcp_pose[:3, 3].flatten())
                 
-                # Compute the Yoshikawa manipulability index
-                # High Yoshikawa manipulability index values indicate that the robot has good dexterity 
-                # and can move in multiple directions from the corresponding configurations. 
-                # Low manipulability index values indicate that corresponding configurations are less 
-                # dexterous and more susceptible to singularities.
-                manipulability_idk = self.robot.manipulability_index(q)
-                reachable_points.add((end_effector_pose, manipulability_idk))  
+    #             # Compute the Yoshikawa manipulability index
+    #             # High Yoshikawa manipulability index values indicate that the robot has good dexterity 
+    #             # and can move in multiple directions from the corresponding configurations. 
+    #             # Low manipulability index values indicate that corresponding configurations are less 
+    #             # dexterous and more susceptible to singularities.
+    #             manipulability_idk = self.robot.manipulability_index(q)
+    #             reachable_points.add((end_effector_pose, manipulability_idk))  
         
-        return list(reachable_points)
+    #     return list(reachable_points)
+    
+    def reachability_random_sample(self, num_samples, mass=0):
+        """Process a batch of random samples and return valid positions."""
+        valid_positions = set()
+        valid_configs = set()
+        
+        for _ in range(num_samples):
+            # Generate random configuration
+            q = tuple(round(joint, 3) for joint in self.robot.random_configuration())
+            
+            # Skip if already checked
+            if q in valid_configs:
+                continue
+            
+            # Forward kinematics to get TCP pose
+            tcp_pose = self.robot.fk(q)
+            
+            # 1. Check end effector orientation
+            end_effector_z_axis = tcp_pose[:3, 2]
+            if all(end_effector_z_axis == [0, 0, -1]):
+                continue
+            
+            # 2. Check self-collision
+            if self.robot.has_self_collision(q):
+                continue
+                
+            # 3. Check obstacle collision
+            if self.task and self.robot.has_collisions(self.task, safety_margin=0):
+                continue
+            
+            # 4. Check weight feasibility
+            weight = mass * 9.8
+            eef_wrench = np.array([0, 0, -weight, 0, 0, 0])
+            joint_torque_limits = self.robot.joint_torque_limits
+            if joint_torque_limits.ndim == 1:
+                torque_limits = np.array([-joint_torque_limits, joint_torque_limits]).T
+            elif joint_torque_limits.ndim == 2:
+                torque_limits = joint_torque_limits.T
+            proposed_joint_torques = self.robot.id(q=None, dq=None, ddq=None, 
+                                                 motor_inertia=True, friction=True, 
+                                                 eef_wrench=eef_wrench)
+            weight_feasible = np.all((proposed_joint_torques >= torque_limits[:, 0]) & 
+                                    (proposed_joint_torques <= torque_limits[:, 1]))
+            if not weight_feasible:
+                continue
+            
+            # 5. Add valid pposition of the end effector
+            ee_position = tuple(round(p, 3) for p in tcp_pose[:3, 3].flatten())
+            valid_positions.add(ee_position)
+            valid_configs.add(q)
+            
+        self.valid_configs = list(valid_configs)
+        self.valid_positions = list(valid_positions)
+        
+        return valid_positions
     
     def plot_interactive_reachability_with_manipulability(self, reachable, manipulability):
         # Create the 3D scatter plot
