@@ -1,343 +1,343 @@
-<robot name="Auto-Generated: 3ccd00c199ff4cfd81bc3fa710332e28">
-	<link name="base_rev_joint.base_motor_link">
+<robot name="Auto-Generated: e066bc73119e435aa579eee71ceb3cdc">
+	<link name="540_base.540_basebase_link">
 		<inertial>
-			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 3.141592653589793" />
-			<mass value="0.0" />
-			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+			<origin xyz="0.000309866219877738 -1.42727209052575e-10 0.017628309391527" rpy="0.0 0.0 0.0" />
+			<mass value="0.182418164745937" />
+			<inertia ixx="0.000120490016488346" ixy="-5.92636030410217e-14" ixz="-1.49319277186411e-07" iyy="0.000145009530309103" iyz="-4.24186454602543e-13" izz="0.000228954451007768" />
 		</inertial>
-		<visual name="base_rev_joint.base_motor_link_visual">
-			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 3.141592653589793" />
-			<geometry>
-				<mesh filename="assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_motor_link.STL" scale="1.0 1.0 1.0" />
-			</geometry>
-		</visual>
-		<collision name="base_rev_joint.base_motor_link_collision">
-			<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 3.141592653589793" />
-			<geometry>
-				<mesh filename="assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_motor_link.STL" scale="1.0 1.0 1.0" />
-			</geometry>
-		</collision>
-	</link>
-	<link name="base_rev_joint.base_out_link">
-		<inertial>
-			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
-			<mass value="0.0" />
-			<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
-		</inertial>
-		<visual name="base_rev_joint.base_out_link_visual">
+		<visual name="540_base.540_basebase_link_visual">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_out_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_base/540_base/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="base_rev_joint.base_out_link_collision">
+		<collision name="540_base.540_basebase_link_collision">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_BASE/Assem_4310_BASE/meshes/base_out_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_base/540_base/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="baseto4310-0.15.baseto4310-0.15">
+	<link name="540_base.540_basejoint1">
 		<inertial>
-			<origin xyz="0.0 0.0 -0.075" rpy="0.0 0.0 0.0" />
-			<mass value="9.375000000000002e-05" />
-			<inertia ixx="1.7822265625e-07" ixy="0.0" ixz="0.0" iyy="1.7822265625e-07" iyz="0.0" izz="4.882812500000001e-09" />
+			<origin xyz="-0.0013187 -0.00023587 0.034832" rpy="0.0 0.0 0.0" />
+			<mass value="0.016459" />
+			<inertia ixx="6.2604e-06" ixy="3.9963e-08" ixz="2.0986e-07" iyy="6.0441e-06" iyz="3.7529e-08" izz="2.8451e-06" />
 		</inertial>
-		<visual name="baseto4310-0.15.baseto4310-0.15_visual">
-			<origin xyz="0.0 0.0 -0.075" rpy="0.0 0.0 0.0" />
-			<geometry>
-				<box size="0.025 0.025 0.15" />
-			</geometry>
-		</visual>
-		<collision name="baseto4310-0.15.baseto4310-0.15_collision">
-			<origin xyz="0.0 0.0 -0.075" rpy="0.0 0.0 0.0" />
-			<geometry>
-				<box size="0.025 0.025 0.15" />
-			</geometry>
-		</collision>
-	</link>
-	<link name="motor4310_rev_joint.motor4310_in_link">
-		<inertial>
-			<origin xyz="0.0012212 -4.3571e-06 0.035478" rpy="0.0 0.0 0.0" />
-			<mass value="0.57649" />
-			<inertia ixx="0.00051876" ixy="-5.0519e-08" ixz="-5.0469e-06" iyy="0.00039258" iyz="3.4788e-08" izz="0.00029808" />
-		</inertial>
-		<visual name="motor4310_rev_joint.motor4310_in_link_visual">
+		<visual name="540_base.540_basejoint1_visual">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_base/540_base/meshes/joint1.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint.motor4310_in_link_collision">
+		<collision name="540_base.540_basejoint1_collision">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_base/540_base/meshes/joint1.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint.motor4310_out_link">
+	<link name="540_base-to-330_joint-0.1-1-S.540_base-to-330_joint-0.1-1-S">
 		<inertial>
-			<origin xyz="-2.5332e-10 0.0011054 0.013691" rpy="-1.5707963267948966 0.0 0.0" />
-			<mass value="0.088545" />
-			<inertia ixx="2.4599e-05" ixy="-3.8934e-22" ixz="-1.8263e-21" iyy="3.0632e-05" iyz="7.8406e-07" izz="2.5766e-05" />
+			<origin xyz="0.0 0.0 -0.08" rpy="0.0 0.0 1.3962634015954658" />
+			<mass value="6.250000000000001e-05" />
+			<inertia ixx="5.371093750000002e-08" ixy="0.0" ixz="0.0" iyy="5.371093750000002e-08" iyz="0.0" izz="3.2552083333333346e-09" />
 		</inertial>
-		<visual name="motor4310_rev_joint.motor4310_out_link_visual">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<visual name="540_base-to-330_joint-0.1-1-S.540_base-to-330_joint-0.1-1-S_visual">
+			<origin xyz="0.0 0.0 -0.08" rpy="0.0 0.0 1.3962634015954658" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<box size="0.025 0.025 0.1" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint.motor4310_out_link_collision">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<collision name="540_base-to-330_joint-0.1-1-S.540_base-to-330_joint-0.1-1-S_collision">
+			<origin xyz="0.0 0.0 -0.08" rpy="0.0 0.0 1.3962634015954658" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<box size="0.025 0.025 0.1" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="r4310to4310-0.45.r4310to4310-0.45">
+	<link name="330_joint.330_jointbase_link">
 		<inertial>
-			<origin xyz="0.0 0.025 0.2125" rpy="0.0 0.0 0.0" />
-			<mass value="0.0002812500000000001" />
-			<inertia ixx="4.753417968750002e-06" ixy="0.0" ixz="0.0" iyy="4.753417968750002e-06" iyz="0.0" izz="1.4648437500000007e-08" />
+			<origin xyz="0.0030419 1.9966e-05 0.012673" rpy="0.0 0.0 0.0" />
+			<mass value="0.044407" />
+			<inertia ixx="1.2854e-05" ixy="-2.668e-09" ixz="5.6649e-07" iyy="1.3347e-05" iyz="-8.403e-11" izz="6.139e-06" />
 		</inertial>
-		<visual name="r4310to4310-0.45.r4310to4310-0.45_visual">
-			<origin xyz="0.0 0.025 0.2125" rpy="0.0 0.0 0.0" />
-			<geometry>
-				<box size="0.025 0.025 0.45" />
-			</geometry>
-		</visual>
-		<collision name="r4310to4310-0.45.r4310to4310-0.45_collision">
-			<origin xyz="0.0 0.025 0.2125" rpy="0.0 0.0 0.0" />
-			<geometry>
-				<box size="0.025 0.025 0.45" />
-			</geometry>
-		</collision>
-	</link>
-	<link name="motor4310_rev_joint-1.motor4310_in_link">
-		<inertial>
-			<origin xyz="0.0012212 -4.3571e-06 0.035478" rpy="0.0 0.0 0.0" />
-			<mass value="0.57649" />
-			<inertia ixx="0.00051876" ixy="-5.0519e-08" ixz="-5.0469e-06" iyy="0.00039258" iyz="3.4788e-08" izz="0.00029808" />
-		</inertial>
-		<visual name="motor4310_rev_joint-1.motor4310_in_link_visual">
+		<visual name="330_joint.330_jointbase_link_visual">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/330_joint/330_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-1.motor4310_in_link_collision">
+		<collision name="330_joint.330_jointbase_link_collision">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/330_joint/330_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint-1.motor4310_out_link">
+	<link name="330_joint.330_jointAdaptor_Link">
 		<inertial>
-			<origin xyz="-2.5332e-10 0.0011054 0.013691" rpy="-1.5707963267948966 0.0 0.0" />
-			<mass value="0.088545" />
-			<inertia ixx="2.4599e-05" ixy="-3.8934e-22" ixz="-1.8263e-21" iyy="3.0632e-05" iyz="7.8406e-07" izz="2.5766e-05" />
+			<origin xyz="0.0 0.000962217084485531 0.0167038367716975" rpy="0.0 0.0 0.0" />
+			<mass value="0.0172446569319253" />
+			<inertia ixx="3.81996295093174e-06" ixy="3.08349257978459e-22" ixz="1.23753267555244e-22" iyy="4.03700901328837e-06" iyz="-1.70511681168816e-07" izz="3.04173251340529e-06" />
 		</inertial>
-		<visual name="motor4310_rev_joint-1.motor4310_out_link_visual">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
-			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
-			</geometry>
-		</visual>
-		<collision name="motor4310_rev_joint-1.motor4310_out_link_collision">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
-			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
-			</geometry>
-		</collision>
-	</link>
-	<link name="r4310to4310-0.15.r4310to4310-0.15">
-		<inertial>
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
-			<mass value="9.375000000000002e-05" />
-			<inertia ixx="1.7822265625e-07" ixy="0.0" ixz="0.0" iyy="1.7822265625e-07" iyz="0.0" izz="4.882812500000001e-09" />
-		</inertial>
-		<visual name="r4310to4310-0.15.r4310to4310-0.15_visual">
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
-			<geometry>
-				<box size="0.025 0.025 0.15" />
-			</geometry>
-		</visual>
-		<collision name="r4310to4310-0.15.r4310to4310-0.15_collision">
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
-			<geometry>
-				<box size="0.025 0.025 0.15" />
-			</geometry>
-		</collision>
-	</link>
-	<link name="motor4310_rev_joint-2.motor4310_in_link">
-		<inertial>
-			<origin xyz="0.0012212 -4.3571e-06 0.035478" rpy="0.0 0.0 0.0" />
-			<mass value="0.57649" />
-			<inertia ixx="0.00051876" ixy="-5.0519e-08" ixz="-5.0469e-06" iyy="0.00039258" iyz="3.4788e-08" izz="0.00029808" />
-		</inertial>
-		<visual name="motor4310_rev_joint-2.motor4310_in_link_visual">
+		<visual name="330_joint.330_jointAdaptor_Link_visual">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/330_joint/330_joint/meshes/Adaptor_Link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-2.motor4310_in_link_collision">
+		<collision name="330_joint.330_jointAdaptor_Link_collision">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/330_joint/330_joint/meshes/Adaptor_Link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint-2.motor4310_out_link">
+	<link name="330_joint-to-540_joint-0.1-3-W.330_joint-to-540_joint-0.1-3-W">
 		<inertial>
-			<origin xyz="-2.5332e-10 0.0011054 0.013691" rpy="-1.5707963267948966 0.0 0.0" />
-			<mass value="0.088545" />
-			<inertia ixx="2.4599e-05" ixy="-3.8934e-22" ixz="-1.8263e-21" iyy="3.0632e-05" iyz="7.8406e-07" izz="2.5766e-05" />
+			<origin xyz="0.0 0.0417038367717 -0.025" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
+			<mass value="6.250000000000001e-05" />
+			<inertia ixx="5.371093750000002e-08" ixy="0.0" ixz="0.0" iyy="5.371093750000002e-08" iyz="0.0" izz="3.2552083333333346e-09" />
 		</inertial>
-		<visual name="motor4310_rev_joint-2.motor4310_out_link_visual">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<visual name="330_joint-to-540_joint-0.1-3-W.330_joint-to-540_joint-0.1-3-W_visual">
+			<origin xyz="0.0 0.0417038367717 -0.025" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<box size="0.025 0.025 0.1" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-2.motor4310_out_link_collision">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<collision name="330_joint-to-540_joint-0.1-3-W.330_joint-to-540_joint-0.1-3-W_collision">
+			<origin xyz="0.0 0.0417038367717 -0.025" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<box size="0.025 0.025 0.1" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="r4310to4310-0.3.r4310to4310-0.3">
+	<link name="540_joint.540_jointbase_link">
 		<inertial>
-			<origin xyz="0.0 0.025 0.1375" rpy="0.0 0.0 0.0" />
+			<origin xyz="-1.38539547466107e-09 -0.000287119259689533 0.00368996137280351" rpy="0.0 0.0 0.0" />
+			<mass value="0.125294353341299" />
+			<inertia ixx="5.50795565499151e-05" ixy="-2.86571926891384e-12" ixz="-1.00711791936899e-12" iyy="4.53389813728391e-05" iyz="5.79699070456781e-07" izz="4.02015769123562e-05" />
+		</inertial>
+		<visual name="540_joint.540_jointbase_link_visual">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/540_joint/540_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="540_joint.540_jointbase_link_collision">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/540_joint/540_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="540_joint.540_jointadaptor_link">
+		<inertial>
+			<origin xyz="-0.00133963232913439 -0.00025002856406559915 0.0613316332422638" rpy="-1.5707963267948966 0.0 0.0" />
+			<mass value="0.0164593396501985" />
+			<inertia ixx="6.26759128369106e-06" ixy="-2.13191473993262e-07" ixz="-5.26404881623548e-12" iyy="2.84507172219405e-06" iyz="3.47433426545677e-12" izz="6.03696612770299e-06" />
+		</inertial>
+		<visual name="540_joint.540_jointadaptor_link_visual">
+			<origin xyz="0.0 -0.03 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/540_joint/540_joint/meshes/adaptor_link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="540_joint.540_jointadaptor_link_collision">
+			<origin xyz="0.0 -0.03 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/540_joint/540_joint/meshes/adaptor_link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="540_joint-to-430_joint-0.3-0-E.540_joint-to-430_joint-0.3-0-E">
+		<inertial>
+			<origin xyz="0.0 0.205 -0.03" rpy="1.5707963267948966 -9.992007221626409e-15 0.0" />
 			<mass value="0.00018750000000000003" />
 			<inertia ixx="1.4111328124999999e-06" ixy="0.0" ixz="0.0" iyy="1.4111328124999999e-06" iyz="0.0" izz="9.765625000000002e-09" />
 		</inertial>
-		<visual name="r4310to4310-0.3.r4310to4310-0.3_visual">
-			<origin xyz="0.0 0.025 0.1375" rpy="0.0 0.0 0.0" />
+		<visual name="540_joint-to-430_joint-0.3-0-E.540_joint-to-430_joint-0.3-0-E_visual">
+			<origin xyz="0.0 0.205 -0.03" rpy="1.5707963267948966 -9.992007221626409e-15 0.0" />
 			<geometry>
 				<box size="0.025 0.025 0.3" />
 			</geometry>
 		</visual>
-		<collision name="r4310to4310-0.3.r4310to4310-0.3_collision">
-			<origin xyz="0.0 0.025 0.1375" rpy="0.0 0.0 0.0" />
+		<collision name="540_joint-to-430_joint-0.3-0-E.540_joint-to-430_joint-0.3-0-E_collision">
+			<origin xyz="0.0 0.205 -0.03" rpy="1.5707963267948966 -9.992007221626409e-15 0.0" />
 			<geometry>
 				<box size="0.025 0.025 0.3" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint-3.motor4310_in_link">
+	<link name="430_joint.430_jointbase_link">
 		<inertial>
-			<origin xyz="0.0012212 -4.3571e-06 0.035478" rpy="0.0 0.0 0.0" />
-			<mass value="0.57649" />
-			<inertia ixx="0.00051876" ixy="-5.0519e-08" ixz="-5.0469e-06" iyy="0.00039258" iyz="3.4788e-08" izz="0.00029808" />
+			<origin xyz="9.64238987444248e-05 -0.0238625954220517 -0.0191555751472326" rpy="0.0 0.0 0.0" />
+			<mass value="0.0706732385140066" />
+			<inertia ixx="2.06412498439939e-05" ixy="-3.33052764910213e-15" ixz="-6.37223363832157e-13" iyy="1.48281207616152e-05" iyz="-2.93366267658796e-07" izz="1.86371462203555e-05" />
 		</inertial>
-		<visual name="motor4310_rev_joint-3.motor4310_in_link_visual">
+		<visual name="430_joint.430_jointbase_link_visual">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/430_joint/430_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-3.motor4310_in_link_collision">
+		<collision name="430_joint.430_jointbase_link_collision">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/430_joint/430_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint-3.motor4310_out_link">
+	<link name="430_joint.430_jointadaptor_Link">
 		<inertial>
-			<origin xyz="-2.5332e-10 0.0011054 0.013691" rpy="-1.5707963267948966 0.0 0.0" />
-			<mass value="0.088545" />
-			<inertia ixx="2.4599e-05" ixy="-3.8934e-22" ixz="-1.8263e-21" iyy="3.0632e-05" iyz="7.8406e-07" izz="2.5766e-05" />
+			<origin xyz="-0.00158429066893598 -8.42936186868633e-11 0.0179865551420174" rpy="0.0 0.0 0.0" />
+			<mass value="0.0139178998268077" />
+			<inertia ixx="3.22006152261719e-06" ixy="3.63333509080367e-23" ixz="1.01726459118517e-07" iyy="2.98404801683955e-06" iyz="-4.10219058369914e-23" izz="2.66670579310236e-06" />
 		</inertial>
-		<visual name="motor4310_rev_joint-3.motor4310_out_link_visual">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<visual name="430_joint.430_jointadaptor_Link_visual">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/430_joint/430_joint/meshes/adaptor_Link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-3.motor4310_out_link_collision">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<collision name="430_joint.430_jointadaptor_Link_collision">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/430_joint/430_joint/meshes/adaptor_Link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="r4310to4310-0.15-1.r4310to4310-0.15">
+	<link name="430_joint-to-540_joint-0.15-0-W.430_joint-to-540_joint-0.15-0-W">
 		<inertial>
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
+			<origin xyz="0.0 0.0 -0.085" rpy="0.0 0.0 -3.141592653589783" />
 			<mass value="9.375000000000002e-05" />
 			<inertia ixx="1.7822265625e-07" ixy="0.0" ixz="0.0" iyy="1.7822265625e-07" iyz="0.0" izz="4.882812500000001e-09" />
 		</inertial>
-		<visual name="r4310to4310-0.15-1.r4310to4310-0.15_visual">
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
+		<visual name="430_joint-to-540_joint-0.15-0-W.430_joint-to-540_joint-0.15-0-W_visual">
+			<origin xyz="0.0 0.0 -0.085" rpy="0.0 0.0 -3.141592653589783" />
 			<geometry>
 				<box size="0.025 0.025 0.15" />
 			</geometry>
 		</visual>
-		<collision name="r4310to4310-0.15-1.r4310to4310-0.15_collision">
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
+		<collision name="430_joint-to-540_joint-0.15-0-W.430_joint-to-540_joint-0.15-0-W_collision">
+			<origin xyz="0.0 0.0 -0.085" rpy="0.0 0.0 -3.141592653589783" />
 			<geometry>
 				<box size="0.025 0.025 0.15" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint-4.motor4310_in_link">
+	<link name="540_joint-1.540_jointbase_link">
 		<inertial>
-			<origin xyz="0.0012212 -4.3571e-06 0.035478" rpy="0.0 0.0 0.0" />
-			<mass value="0.57649" />
-			<inertia ixx="0.00051876" ixy="-5.0519e-08" ixz="-5.0469e-06" iyy="0.00039258" iyz="3.4788e-08" izz="0.00029808" />
+			<origin xyz="-1.38539547466107e-09 -0.000287119259689533 0.00368996137280351" rpy="0.0 0.0 0.0" />
+			<mass value="0.125294353341299" />
+			<inertia ixx="5.50795565499151e-05" ixy="-2.86571926891384e-12" ixz="-1.00711791936899e-12" iyy="4.53389813728391e-05" iyz="5.79699070456781e-07" izz="4.02015769123562e-05" />
 		</inertial>
-		<visual name="motor4310_rev_joint-4.motor4310_in_link_visual">
+		<visual name="540_joint-1.540_jointbase_link_visual">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_joint/540_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-4.motor4310_in_link_collision">
+		<collision name="540_joint-1.540_jointbase_link_collision">
 			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_in_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_joint/540_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="motor4310_rev_joint-4.motor4310_out_link">
+	<link name="540_joint-1.540_jointadaptor_link">
 		<inertial>
-			<origin xyz="-2.5332e-10 0.0011054 0.013691" rpy="-1.5707963267948966 0.0 0.0" />
-			<mass value="0.088545" />
-			<inertia ixx="2.4599e-05" ixy="-3.8934e-22" ixz="-1.8263e-21" iyy="3.0632e-05" iyz="7.8406e-07" izz="2.5766e-05" />
+			<origin xyz="-0.00133963232913439 -0.00025002856406559915 0.0613316332422638" rpy="-1.5707963267948966 0.0 0.0" />
+			<mass value="0.0164593396501985" />
+			<inertia ixx="6.26759128369106e-06" ixy="-2.13191473993262e-07" ixz="-5.26404881623548e-12" iyy="2.84507172219405e-06" iyz="3.47433426545677e-12" izz="6.03696612770299e-06" />
 		</inertial>
-		<visual name="motor4310_rev_joint-4.motor4310_out_link_visual">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<visual name="540_joint-1.540_jointadaptor_link_visual">
+			<origin xyz="0.0 -0.03 0.0" rpy="-1.5707963267948966 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_joint/540_joint/meshes/adaptor_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</visual>
-		<collision name="motor4310_rev_joint-4.motor4310_out_link_collision">
-			<origin xyz="0.0 0.0 0.0" rpy="-1.5707963267948966 0.0 0.0" />
+		<collision name="540_joint-1.540_jointadaptor_link_collision">
+			<origin xyz="0.0 -0.03 0.0" rpy="-1.5707963267948966 0.0 0.0" />
 			<geometry>
-				<mesh filename="assets/Assem_4310_JOINT/Assem_4310_JOINT/meshes/motor4310_out_link.STL" scale="1.0 1.0 1.0" />
+				<mesh filename="assets/540_joint/540_joint/meshes/adaptor_link.STL" scale="1.0 1.0 1.0" />
 			</geometry>
 		</collision>
 	</link>
-	<link name="r4310to4310-0.15-2.r4310to4310-0.15">
+	<link name="540_joint-to-330_joint-0.2-1-E.540_joint-to-330_joint-0.2-1-E">
 		<inertial>
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
-			<mass value="9.375000000000002e-05" />
-			<inertia ixx="1.7822265625e-07" ixy="0.0" ixz="0.0" iyy="1.7822265625e-07" iyz="0.0" izz="4.882812500000001e-09" />
+			<origin xyz="0.0 0.155 -0.03" rpy="1.5707963267948966 -9.992007221626409e-15 0.0" />
+			<mass value="0.00012500000000000003" />
+			<inertia ixx="4.1992187500000015e-07" ixy="0.0" ixz="0.0" iyy="4.1992187500000015e-07" iyz="0.0" izz="6.510416666666669e-09" />
 		</inertial>
-		<visual name="r4310to4310-0.15-2.r4310to4310-0.15_visual">
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
+		<visual name="540_joint-to-330_joint-0.2-1-E.540_joint-to-330_joint-0.2-1-E_visual">
+			<origin xyz="0.0 0.155 -0.03" rpy="1.5707963267948966 -9.992007221626409e-15 0.0" />
 			<geometry>
-				<box size="0.025 0.025 0.15" />
+				<box size="0.025 0.025 0.2" />
 			</geometry>
 		</visual>
-		<collision name="r4310to4310-0.15-2.r4310to4310-0.15_collision">
-			<origin xyz="0.0 0.025 0.0625" rpy="0.0 0.0 0.0" />
+		<collision name="540_joint-to-330_joint-0.2-1-E.540_joint-to-330_joint-0.2-1-E_collision">
+			<origin xyz="0.0 0.155 -0.03" rpy="1.5707963267948966 -9.992007221626409e-15 0.0" />
 			<geometry>
-				<box size="0.025 0.025 0.15" />
+				<box size="0.025 0.025 0.2" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="330_joint-1.330_jointbase_link">
+		<inertial>
+			<origin xyz="0.0030419 1.9966e-05 0.012673" rpy="0.0 0.0 0.0" />
+			<mass value="0.044407" />
+			<inertia ixx="1.2854e-05" ixy="-2.668e-09" ixz="5.6649e-07" iyy="1.3347e-05" iyz="-8.403e-11" izz="6.139e-06" />
+		</inertial>
+		<visual name="330_joint-1.330_jointbase_link_visual">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/330_joint/330_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="330_joint-1.330_jointbase_link_collision">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/330_joint/330_joint/meshes/base_link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="330_joint-1.330_jointAdaptor_Link">
+		<inertial>
+			<origin xyz="0.0 0.000962217084485531 0.0167038367716975" rpy="0.0 0.0 0.0" />
+			<mass value="0.0172446569319253" />
+			<inertia ixx="3.81996295093174e-06" ixy="3.08349257978459e-22" ixz="1.23753267555244e-22" iyy="4.03700901328837e-06" iyz="-1.70511681168816e-07" izz="3.04173251340529e-06" />
+		</inertial>
+		<visual name="330_joint-1.330_jointAdaptor_Link_visual">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/330_joint/330_joint/meshes/Adaptor_Link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</visual>
+		<collision name="330_joint-1.330_jointAdaptor_Link_collision">
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<mesh filename="assets/330_joint/330_joint/meshes/Adaptor_Link.STL" scale="1.0 1.0 1.0" />
+			</geometry>
+		</collision>
+	</link>
+	<link name="330_joint-to-430_joint-0.2-0-N.330_joint-to-430_joint-0.2-0-N">
+		<inertial>
+			<origin xyz="0.0 0.0 -0.1167038367717" rpy="0.0 0.0 0.0" />
+			<mass value="0.00012500000000000003" />
+			<inertia ixx="4.1992187500000015e-07" ixy="0.0" ixz="0.0" iyy="4.1992187500000015e-07" iyz="0.0" izz="6.510416666666669e-09" />
+		</inertial>
+		<visual name="330_joint-to-430_joint-0.2-0-N.330_joint-to-430_joint-0.2-0-N_visual">
+			<origin xyz="0.0 0.0 -0.1167038367717" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<box size="0.025 0.025 0.2" />
+			</geometry>
+		</visual>
+		<collision name="330_joint-to-430_joint-0.2-0-N.330_joint-to-430_joint-0.2-0-N_collision">
+			<origin xyz="0.0 0.0 -0.1167038367717" rpy="0.0 0.0 0.0" />
+			<geometry>
+				<box size="0.025 0.025 0.2" />
 			</geometry>
 		</collision>
 	</link>
@@ -350,123 +350,123 @@
 		<visual name="eef.EEF_visual">
 			<origin xyz="0.0 0.02666666666667 0.0" rpy="3.141592653589793 0.0 0.0" />
 			<geometry>
-				<sphere radius="0.02" />
+				<sphere radius="0.013333333333333334" />
 			</geometry>
 		</visual>
 		<collision name="eef.EEF_collision">
 			<origin xyz="0.0 0.02666666666667 0.0" rpy="3.141592653589793 0.0 0.0" />
 			<geometry>
-				<sphere radius="0.02" />
+				<sphere radius="0.013333333333333334" />
 			</geometry>
 		</collision>
 	</link>
 	<link name="eef.EEF.end-effector.body" />
-	<joint name="base_rev_joint.base_rev_joint" type="revolute">
-		<origin xyz="-0.0 0.0 0.077" rpy="3.67321858996128e-06 3.6732051003074417e-06 -3.141592653589787" />
-		<parent link="base_rev_joint.base_motor_link" />
-		<child link="base_rev_joint.base_out_link" />
+	<joint name="540_base.540_base" type="revolute">
+		<origin xyz="0.016 0.0 0.0575" rpy="0.0 0.0 -0.17953294999999775" />
+		<parent link="540_base.540_basebase_link" />
+		<child link="540_base.540_basejoint1" />
 		<axis xyz="0 0 1" />
 		<dynamics damping="0.0" friction="0.0" />
-		<limit lower="-3.141592653589793" upper="3.141592653589793" effort="1000.0" velocity="10.0" />
+		<limit lower="-inf" upper="inf" effort="1000.0" velocity="10.0" />
 	</joint>
-	<joint name="baseto4310-0.15.baseto4310-0.15.2-1" type="fixed">
+	<joint name="540_base-to-330_joint-0.1-1-S.540_base-to-330_joint-0.1-1-S.2-1" type="fixed">
 		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
-		<parent link="base_rev_joint.base_out_link" />
-		<child link="baseto4310-0.15.baseto4310-0.15" />
+		<parent link="540_base.540_basejoint1" />
+		<child link="540_base-to-330_joint-0.1-1-S.540_base-to-330_joint-0.1-1-S" />
 	</joint>
-	<joint name="motor4310_rev_joint.motor4310_in_link.motor4310_in_linkconnector" type="fixed">
-		<origin xyz="0.0 0.0 -0.15" rpy="1.5707963267948966 0.0 0.0" />
-		<parent link="baseto4310-0.15.baseto4310-0.15" />
-		<child link="motor4310_rev_joint.motor4310_in_link" />
+	<joint name="330_joint.330_jointbase_link.330_jointbase_linkconnector" type="fixed">
+		<origin xyz="-0.00217060222084 -0.01231009691265 -0.1175" rpy="1.3962634015954656 -1.5707963267948966 0.0" />
+		<parent link="540_base-to-330_joint-0.1-1-S.540_base-to-330_joint-0.1-1-S" />
+		<child link="330_joint.330_jointbase_link" />
 	</joint>
-	<joint name="motor4310_rev_joint.motor4310_rev_joint" type="revolute">
-		<origin xyz="0.0255 -0.0395 -0.0" rpy="1.5707963267948968 0.0 1.5699999999999987" />
-		<parent link="motor4310_rev_joint.motor4310_in_link" />
-		<child link="motor4310_rev_joint.motor4310_out_link" />
+	<joint name="330_joint.330_joint" type="revolute">
+		<origin xyz="0.0201 -0.0147 0.0246" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
+		<parent link="330_joint.330_jointbase_link" />
+		<child link="330_joint.330_jointAdaptor_Link" />
 		<axis xyz="0 0 1" />
 		<dynamics damping="0.0" friction="0.0" />
-		<limit lower="-3.141592653589793" upper="3.141592653589793" effort="1000.0" velocity="10.0" />
+		<limit lower="-inf" upper="inf" effort="1000.0" velocity="10.0" />
 	</joint>
-	<joint name="r4310to4310-0.45.r4310to4310-0.45.2-1" type="fixed">
-		<origin xyz="0.0 0.0 0.0" rpy="1.5707963267948966 0.0 0.0" />
-		<parent link="motor4310_rev_joint.motor4310_out_link" />
-		<child link="r4310to4310-0.45.r4310to4310-0.45" />
+	<joint name="330_joint-to-540_joint-0.1-3-W.330_joint-to-540_joint-0.1-3-W.2-1" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="330_joint.330_jointAdaptor_Link" />
+		<child link="330_joint-to-540_joint-0.1-3-W.330_joint-to-540_joint-0.1-3-W" />
 	</joint>
-	<joint name="motor4310_rev_joint-1.motor4310_in_link.motor4310_in_linkconnector" type="fixed">
-		<origin xyz="0.0 0.025 0.425" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
-		<parent link="r4310to4310-0.45.r4310to4310-0.45" />
-		<child link="motor4310_rev_joint-1.motor4310_in_link" />
+	<joint name="540_joint.540_jointbase_link.540_jointbase_linkconnector" type="fixed">
+		<origin xyz="0.0 0.0792038367717 -0.0625" rpy="3.141592653589793 0.0 3.141592653589793" />
+		<parent link="330_joint-to-540_joint-0.1-3-W.330_joint-to-540_joint-0.1-3-W" />
+		<child link="540_joint.540_jointbase_link" />
 	</joint>
-	<joint name="motor4310_rev_joint-1.motor4310_rev_joint" type="revolute">
-		<origin xyz="0.02549999999838 -0.03949999999748 0.0" rpy="1.5707963267948966 0.0 1.56999999997889" />
-		<parent link="motor4310_rev_joint-1.motor4310_in_link" />
-		<child link="motor4310_rev_joint-1.motor4310_out_link" />
+	<joint name="540_joint.540_joint" type="revolute">
+		<origin xyz="0.0 0.0 0.03" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="540_joint.540_jointbase_link" />
+		<child link="540_joint.540_jointadaptor_link" />
 		<axis xyz="0 0 1" />
 		<dynamics damping="0.0" friction="0.0" />
-		<limit lower="-3.141592653589793" upper="3.141592653589793" effort="1000.0" velocity="10.0" />
+		<limit lower="-inf" upper="inf" effort="1000.0" velocity="10.0" />
 	</joint>
-	<joint name="r4310to4310-0.15.r4310to4310-0.15.2-1" type="fixed">
-		<origin xyz="0.0 0.0 0.0" rpy="1.5707963267948966 0.0 0.0" />
-		<parent link="motor4310_rev_joint-1.motor4310_out_link" />
-		<child link="r4310to4310-0.15.r4310to4310-0.15" />
+	<joint name="540_joint-to-430_joint-0.3-0-E.540_joint-to-430_joint-0.3-0-E.2-1" type="fixed">
+		<origin xyz="0.0 -0.03 0.0" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="540_joint.540_jointadaptor_link" />
+		<child link="540_joint-to-430_joint-0.3-0-E.540_joint-to-430_joint-0.3-0-E" />
 	</joint>
-	<joint name="motor4310_rev_joint-2.motor4310_in_link.motor4310_in_linkconnector" type="fixed">
-		<origin xyz="0.0 0.025 0.125" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
-		<parent link="r4310to4310-0.15.r4310to4310-0.15" />
-		<child link="motor4310_rev_joint-2.motor4310_in_link" />
+	<joint name="430_joint.430_jointbase_link.430_jointbase_linkconnector" type="fixed">
+		<origin xyz="0.0 0.39875 -0.04875" rpy="1.5707963267948966 9.992007221626409e-15 3.141592653589793" />
+		<parent link="540_joint-to-430_joint-0.3-0-E.540_joint-to-430_joint-0.3-0-E" />
+		<child link="430_joint.430_jointbase_link" />
 	</joint>
-	<joint name="motor4310_rev_joint-2.motor4310_rev_joint" type="revolute">
-		<origin xyz="0.02549999999838 -0.03949999999748 0.0" rpy="1.5707963267948966 0.0 1.56999999997889" />
-		<parent link="motor4310_rev_joint-2.motor4310_in_link" />
-		<child link="motor4310_rev_joint-2.motor4310_out_link" />
+	<joint name="430_joint.430_joint" type="revolute">
+		<origin xyz="0.0 0.0011 -0.0" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="430_joint.430_jointbase_link" />
+		<child link="430_joint.430_jointadaptor_Link" />
 		<axis xyz="0 0 1" />
 		<dynamics damping="0.0" friction="0.0" />
-		<limit lower="-3.141592653589793" upper="3.141592653589793" effort="1000.0" velocity="10.0" />
+		<limit lower="-inf" upper="inf" effort="1000.0" velocity="10.0" />
 	</joint>
-	<joint name="r4310to4310-0.3.r4310to4310-0.3.2-1" type="fixed">
-		<origin xyz="0.0 0.0 0.0" rpy="1.5707963267948966 0.0 0.0" />
-		<parent link="motor4310_rev_joint-2.motor4310_out_link" />
-		<child link="r4310to4310-0.3.r4310to4310-0.3" />
+	<joint name="430_joint-to-540_joint-0.15-0-W.430_joint-to-540_joint-0.15-0-W.2-1" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="430_joint.430_jointadaptor_Link" />
+		<child link="430_joint-to-540_joint-0.15-0-W.430_joint-to-540_joint-0.15-0-W" />
 	</joint>
-	<joint name="motor4310_rev_joint-3.motor4310_in_link.motor4310_in_linkconnector" type="fixed">
-		<origin xyz="0.0 0.025 0.275" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
-		<parent link="r4310to4310-0.3.r4310to4310-0.3" />
-		<child link="motor4310_rev_joint-3.motor4310_in_link" />
+	<joint name="540_joint-1.540_jointbase_link.540_jointbase_linkconnector" type="fixed">
+		<origin xyz="0.0 0.0 -0.185" rpy="-3.141592653589793 0.0 -3.1415926535897833" />
+		<parent link="430_joint-to-540_joint-0.15-0-W.430_joint-to-540_joint-0.15-0-W" />
+		<child link="540_joint-1.540_jointbase_link" />
 	</joint>
-	<joint name="motor4310_rev_joint-3.motor4310_rev_joint" type="revolute">
-		<origin xyz="0.02549999999838 -0.03949999999748 0.0" rpy="1.5707963267948966 0.0 1.56999999997889" />
-		<parent link="motor4310_rev_joint-3.motor4310_in_link" />
-		<child link="motor4310_rev_joint-3.motor4310_out_link" />
+	<joint name="540_joint-1.540_joint" type="revolute">
+		<origin xyz="0.0 0.0 0.03" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="540_joint-1.540_jointbase_link" />
+		<child link="540_joint-1.540_jointadaptor_link" />
 		<axis xyz="0 0 1" />
 		<dynamics damping="0.0" friction="0.0" />
-		<limit lower="-3.141592653589793" upper="3.141592653589793" effort="1000.0" velocity="10.0" />
+		<limit lower="-inf" upper="inf" effort="1000.0" velocity="10.0" />
 	</joint>
-	<joint name="r4310to4310-0.15-1.r4310to4310-0.15.2-1" type="fixed">
-		<origin xyz="0.0 0.0 0.0" rpy="1.5707963267948966 0.0 0.0" />
-		<parent link="motor4310_rev_joint-3.motor4310_out_link" />
-		<child link="r4310to4310-0.15-1.r4310to4310-0.15" />
+	<joint name="540_joint-to-330_joint-0.2-1-E.540_joint-to-330_joint-0.2-1-E.2-1" type="fixed">
+		<origin xyz="0.0 -0.03 0.0" rpy="1.5707963267948966 0.0 0.0" />
+		<parent link="540_joint-1.540_jointadaptor_link" />
+		<child link="540_joint-to-330_joint-0.2-1-E.540_joint-to-330_joint-0.2-1-E" />
 	</joint>
-	<joint name="motor4310_rev_joint-4.motor4310_in_link.motor4310_in_linkconnector" type="fixed">
-		<origin xyz="0.0 0.025 0.125" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
-		<parent link="r4310to4310-0.15-1.r4310to4310-0.15" />
-		<child link="motor4310_rev_joint-4.motor4310_in_link" />
+	<joint name="330_joint-1.330_jointbase_link.330_jointbase_linkconnector" type="fixed">
+		<origin xyz="-0.0125 0.2425 -0.03" rpy="1.5707963267949068 0.0 -1.5707963267948966" />
+		<parent link="540_joint-to-330_joint-0.2-1-E.540_joint-to-330_joint-0.2-1-E" />
+		<child link="330_joint-1.330_jointbase_link" />
 	</joint>
-	<joint name="motor4310_rev_joint-4.motor4310_rev_joint" type="revolute">
-		<origin xyz="0.02549999999838 -0.03949999999748 0.0" rpy="1.5707963267948966 0.0 1.56999999997889" />
-		<parent link="motor4310_rev_joint-4.motor4310_in_link" />
-		<child link="motor4310_rev_joint-4.motor4310_out_link" />
+	<joint name="330_joint-1.330_joint" type="revolute">
+		<origin xyz="0.0201 -0.0147 0.0246" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
+		<parent link="330_joint-1.330_jointbase_link" />
+		<child link="330_joint-1.330_jointAdaptor_Link" />
 		<axis xyz="0 0 1" />
 		<dynamics damping="0.0" friction="0.0" />
-		<limit lower="-3.141592653589793" upper="3.141592653589793" effort="1000.0" velocity="10.0" />
+		<limit lower="-inf" upper="inf" effort="1000.0" velocity="10.0" />
 	</joint>
-	<joint name="r4310to4310-0.15-2.r4310to4310-0.15.2-1" type="fixed">
-		<origin xyz="0.0 0.0 0.0" rpy="1.5707963267948966 0.0 0.0" />
-		<parent link="motor4310_rev_joint-4.motor4310_out_link" />
-		<child link="r4310to4310-0.15-2.r4310to4310-0.15" />
+	<joint name="330_joint-to-430_joint-0.2-0-N.330_joint-to-430_joint-0.2-0-N.2-1" type="fixed">
+		<origin xyz="0.0 0.0 0.0" rpy="3.141592653589793 0.0 0.0" />
+		<parent link="330_joint-1.330_jointAdaptor_Link" />
+		<child link="330_joint-to-430_joint-0.2-0-N.330_joint-to-430_joint-0.2-0-N" />
 	</joint>
 	<joint name="eef.EEF.robot2eef" type="fixed">
-		<origin xyz="0.0 0.025 0.125" rpy="-1.5707963267948966 0.0 -3.141592653589793" />
-		<parent link="r4310to4310-0.15-2.r4310to4310-0.15" />
+		<origin xyz="0.0 -0.01875 -0.2604538367717" rpy="3.141592653589793 0.0 3.141592653589793" />
+		<parent link="330_joint-to-430_joint-0.2-0-N.330_joint-to-430_joint-0.2-0-N" />
 		<child link="eef.EEF" />
 	</joint>
 	<joint name="eef.EEF.end-effector" type="fixed">
