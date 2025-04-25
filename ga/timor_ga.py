@@ -281,36 +281,85 @@ def on_generation(ga):
         file.write(f"Best solution: {solution_module}\n\n")
 
 
-def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, startDOF, endDOF):
-    """
-    Performs a brute-force optimization to find the configuration with the highest fitness score.
-    Iterates over possible configurations (base, joints, links, degrees of freedom, end-effector) and evaluates their fitness.
-    Returns the configuration tuple with the highest fitness score."
-    """
+# def naive_optimize(db, baseNames, baseLinkNames, jointNames, linkNames, eefNames, startDOF, endDOF):
+#     """
+#     Performs a brute-force optimization to find the configuration with the highest fitness score.
+#     Iterates over possible configurations (base, joints, links, degrees of freedom, end-effector) and evaluates their fitness.
+#     Returns the configuration tuple with the highest fitness score."
+#     """
 
-    joint_link_pairs = list(itertools.product(jointNames, linkNames))
-    maximLexicograph = Lexicographic(float("-inf"),float("-inf"))
-    max_config = ()
-    current_modules_list = []
-    for baseName in baseNames:
-        current_modules_list.append(baseName)
-        for baseLinkName in baseLinkNames:
-            current_modules_list.append(baseLinkName)
-            for dof in range(startDOF, endDOF+1):
-                for dofSection in itertools.product(joint_link_pairs, repeat=dof):
-                    dofSectionList = sum(list([list(tup) for tup in dofSection]), [])
-                    for eefName in eefNames:
-                        configuration_tuple = tuple(current_modules_list + dofSectionList + [eefName])
-                        current_Lexicograph = fitness_function(ModuleAssembly.from_serial_modules(db, configuration_tuple), None, 1)
-                        if   current_Lexicograph > maximLexicograph:
-                            max_config = configuration_tuple
-                            maximLexicograph = current_Lexicograph
+#     joint_link_pairs = list(itertools.product(jointNames, linkNames))
+#     maximLexicograph = Lexicographic(float("-inf"),float("-inf"))
+#     max_config = ()
+#     current_modules_list = []
+#     for baseName in baseNames:
+#         current_modules_list.append(baseName)
+#         for baseLinkName in baseLinkNames:
+#             current_modules_list.append(baseLinkName)
+#             for dof in range(startDOF, endDOF+1):
+#                 for dofSection in itertools.product(joint_link_pairs, repeat=dof):
+#                     dofSectionList = sum(list([list(tup) for tup in dofSection]), [])
+#                     for eefName in eefNames:
+#                         configuration_tuple = tuple(current_modules_list + dofSectionList + [eefName])
+#                         current_Lexicograph = fitness_function(ModuleAssembly.from_serial_modules(db, configuration_tuple), None, 1)
+#                         if   current_Lexicograph > maximLexicograph:
+#                             max_config = configuration_tuple
+#                             maximLexicograph = current_Lexicograph
 
                     
-            current_modules_list.pop()
+#             current_modules_list.pop()
 
-        current_modules_list.pop()
-    return max_config
+#         current_modules_list.pop()
+#     return max_config
+
+def naive_optimize(db, baseNames, jointNames, base_or_joint_to_compatible_links,
+                   joint_to_link_and_next_joint, eefNames, startDOF, endDOF):
+    """
+    One-pass DFS robot builder that finds the best configuration in a given DOF range.
+    Evaluates only when DOF ∈ [startDOF, endDOF], but continues growing up to endDOF.
+    """
+    maxLex = Lexicographic(float("-inf"), float("-inf"), float("-inf"), float("-inf"), float("-inf"))
+    best_config = ()
+
+    for base in baseNames:
+        base_links = base_or_joint_to_compatible_links.get(base, [])
+        for base_link in base_links:
+            try:
+                _, _, first_joint, *_ = base_link.split("-")
+            except ValueError:
+                print(f"Skipping malformed base link: {base_link}")
+                continue
+
+            def dfs(depth, config_so_far, current_joint):
+                # print(config_so_far)
+                nonlocal maxLex, best_config
+
+                # Base case: do not exceed endDOF
+                if depth > endDOF:
+                    return
+
+                # Evaluate configurations at acceptable DOF range
+                if depth >= startDOF:
+                    print("depth: ", depth, "config_so_far: ", config_so_far)
+                    for eef in eefNames:
+                        full_config = tuple(config_so_far + [eef])
+                        try:
+                            robot = ModuleAssembly.from_serial_modules(db, full_config)
+                            score = fitness_function(robot, None, 1)
+                            if score > maxLex:
+                                maxLex = score
+                                best_config = full_config
+                        except Exception as e:
+                            print(f"Assembly failed: {e}")
+
+                # Try all valid (link, next_joint) continuations
+                for link, next_joint in joint_to_link_and_next_joint.get(current_joint, []):
+                    dfs(depth + 1, config_so_far + [current_joint, link], next_joint)
+
+            # Begin DFS from each base → base_link → first_joint
+            dfs(1, [base, base_link], first_joint)
+
+    return best_config
     
 
 
@@ -395,6 +444,18 @@ def main(hyperparameters = None, visualize = False):
     # optimized_results = optimize(db, our_hyperparameters)
 
     print(optimized_results)
+
+    best_robot_config = naive_optimize(
+        db=db,
+        baseNames=baseNames,
+        jointNames=jointNames,
+        base_or_joint_to_compatible_links=base_or_joint_to_compatible_links,
+        joint_to_link_and_next_joint=joint_to_link_and_next_joint,
+        eefNames=eefNames,
+        startDOF=2,  # desired minimum DOF
+        endDOF=2     # desired maximum DOF
+    )
+    print(best_robot_config)
 
 
 
