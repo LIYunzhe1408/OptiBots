@@ -807,18 +807,28 @@ class GA:
             
             # Build the middle part with strict alternation (Link->Joint->Link->Joint...)
             num_middle = population_size[1] - 2  # Subtract base and end effector
-            
+            previous_module = 540
             for i in range(num_middle):
                 if i % 2 == 0:  # Even positions after base = linkages
                     link_id = self.rng.choice(self.link_ids, p=p_links)
                     chromosome.append(self.id2num[link_id])
                 else:  # Odd positions after base = joints
                     joint_id = self.rng.choice(self.joint_ids, p=p_joints)
+                    max_iter = 0
+                    # while previous_module < int(joint_id.split("_")[0]):
+                    #     joint_id = self.rng.choice(self.joint_ids, p=p_joints)
+                    #     max_iter += 1
+                    #     if max_iter > 1000:
+                    #         print("failed to find stable joint")
+                    #         break
+                    # previous_module = int(joint_id.split("_")[0])
                     chromosome.append(self.id2num[joint_id])
             for i in range(1, num_middle, 2):
                 max_iter = 0
                 #print(self._map_genes_to_id(chromosome))
                 joint1, joint2 = extract_joints_from_link(self._map_genes_to_id([chromosome[i]])[0])
+                #print(self._map_genes_to_id([chromosome[i-1]])[0], joint1, self._map_genes_to_id([chromosome[i+1]])[0], joint2)
+                #print(joint1, joint2)
                 while joint1 not in self._map_genes_to_id([chromosome[i-1]])[0] or joint2 not in self._map_genes_to_id([chromosome[i+1]])[0]:
                     if max_iter > 1000:
                         print("failed to find correct linkage for joints")

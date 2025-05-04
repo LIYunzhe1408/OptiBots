@@ -14,7 +14,7 @@ from timor.Geometry import Box, ComposedGeometry, Cylinder, Sphere, Mesh
 from timor.utilities.transformation import Transformation
 from timor.utilities.spatial import rotX, rotY, rotZ
 
-from util import generate_header, read_rod_trans, fetch_joint_trans
+from util import generate_header, read_rod_trans, fetch_joint_trans, MODULE_TO_TORQUE, module_to_torque
 
 ROT_X = Transformation.from_rotation(rotX(np.pi)[:3, :3])
 ROT_Z = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
@@ -107,7 +107,8 @@ def create_i_links(rod_name) -> ModulesDB:
 def generate_i_links(base, joints):
     sizes = (100/1000, 150 / 1000, 200/1000, 300 / 1000)
     diameter = 25 / 1000
-    directions = ['N', 'E', 'W', 'S']
+    directions = ['N', 'E', 'W', 'S'] #uncomment for full version
+    #directions = ['N']
     ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
     rotate = Transformation.from_rotation(rotZ(0)[:3, :3])
     links = ModulesDB()
@@ -116,6 +117,8 @@ def generate_i_links(base, joints):
             for direction in directions:
                 version = 0
                 for base_trans in fetch_joint_trans(base.id, size, diameter, Gender.f):
+                    # if version >= 1: #comment this line for full version
+                    #     continue
                     for joint_trans in fetch_joint_trans(joint.id, size, diameter, Gender.m):
                         rod_id = base.id + "-to-" + joint.id + "-" + str(size) + "-" + str(version) + "-" + direction
                         header = generate_header(rod_id, rod_id)
@@ -137,6 +140,8 @@ def generate_i_links(base, joints):
                 for direction in directions:
                     version = 0
                     for f_joint_trans in fetch_joint_trans(f_joint.id, size, diameter, Gender.f):
+                        # if version >= 1: #comment this line for full version
+                        #     continue
                         for m_joint_trans in fetch_joint_trans(m_joint.id, size, diameter, Gender.m):
                             rod_id = f_joint.id + "-to-" + m_joint.id + "-" + str(size) + "-" + str(version) + "-" + direction
                             header = generate_header(rod_id, rod_id)
@@ -224,10 +229,12 @@ def base(urdf_path):
     proximal = Body(proximal_name, collision=proximal_geometry,
                     connectors=[proximal_connector],
                     )
+    print("proximal mass", proximal.mass)
     distal = Body(distal_name, collision=distal_geometry,
                     connectors=[distal_connector],
                     )
-    
+    print("distal mass", distal.mass)
+
     r_joint = Joint(
         joint_id=urdf_dict['robot']['name'],
         joint_type=joint['type'],
@@ -288,7 +295,7 @@ def create_revolute_joint(urdf_path: str):
     ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
     EYE = Transformation.from_rotation(rotX(0)[:3, :3])
 
-    c_type = 'base' if  'base' in module_name else 'default'
+    c_type = 'base' if  'base' in module_name or 'BASE' in module_name else 'default'
     ROTATE_PROXIMAL = ROT_X @ ROT_X if c_type == 'base' else EYE
     ROTATE_DISTAL = EYE if c_type == 'base' else EYE #Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
 
@@ -330,6 +337,8 @@ def create_revolute_joint(urdf_path: str):
                     connectors=[distal_connector],
                     inertia=create_inertia(distal_inertial)
                     )
+    print("distal mass", distal.mass)
+    print("proximal mass", proximal.mass)
     
     ROTATE_JOINT_P = rpy_to_rotation_matrix([np.pi/2, 0, 0])
     ROTATE_JOINT_C = rpy_to_rotation_matrix([-np.pi/2, 0, 0])
@@ -344,7 +353,7 @@ def create_revolute_joint(urdf_path: str):
         parent_body=proximal,
         child_body=distal,
         q_limits=np.array([-np.pi, np.pi]) if joint['type'] == 'revolute' else (-np.inf, np.inf),
-        torque_limit=1000,
+        torque_limit=module_to_torque(module_name),
         acceleration_limit=5,
         velocity_limit=10,
         parent2joint=MOVE_JOINT_P @Transformation.from_roto_translation(

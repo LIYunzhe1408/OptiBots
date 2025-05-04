@@ -212,6 +212,30 @@ def cost_of_robot(assembly: ModuleAssembly):
             continue
 
     return total_cost
+
+def calculate_stability(assembly: ModuleAssembly):
+    modules = list(assembly.original_module_ids)
+    stability = 0
+    previous_module = 540
+    for i in range(len(modules) - 1):
+        module = modules[i]
+ 
+        if "-to-" not in module and 'eef' not in module:
+            current_module = int(module.split("_")[0])
+            if current_module > previous_module:
+                stability += 1
+            previous_module = current_module
+
+    return 1 + stability/4
+
+def over_budget(assembly: ModuleAssembly):
+    """
+    Check if the robot is over budget in terms of cost.
+    """
+    modules = list(assembly.original_module_ids)
+    num_over = max(modules.count("540_joint") - 1, 0) + max(modules.count("430_joint") - 5, 0) + max(modules.count("330_joint") - 2, 0)
+    return 1 + num_over/4
+
 def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
     """
     This fitness function returns a lexicographic value, where the
@@ -237,16 +261,17 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
         # reachability = Reachability(robot_modules=assembly.original_module_ids, task=task, db=db)
         # reachability.reachability_random_sample_actors(num_samples = 5000, num_actors = 4, batch_size = 1000)
         # reachability_score += reachability.find_reachibility_percentage(voxel_size = 0.1)
-        valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE, mass=0.7)
+        valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE, mass=0.1)
         if not valid_poses:
             reachability_score += 0
             return Lexicographic(0, -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -1000)
         else:
             reachable = valid_poses
             reachable = np.array([list(pt) for pt in reachable])
-            reachability_score += reachability.find_reachibility_percentage(valid_pose=reachable)
+            reachability_score += reachability.find_reachibility_percentage(valid_pose=reachable, voxel_size=0.1)
     num_links = assembly.nModules - assembly.nJoints - 1
-    return Lexicographic(reachability_score * 100 / len(TASKS), -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -assembly.mass * 100)
+    budget = over_budget(assembly)
+    return Lexicographic(reachability_score * 100 / (len(TASKS) * budget), -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -assembly.mass * 100)
 
 # def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
 #     """
@@ -337,7 +362,9 @@ def filter(module):
         return False
     return True
 
-
+# ('540_base', '540_base-to-330_joint-0.1-1-S', '330_joint', '330_joint-to-540_joint-0.1-3-W', '540_joint', '540_joint-to-430_joint-0.3-0-E', '430_joint', '430_joint-to-540_joint-0.15-0-W', '540_joint', '540_joint-to-330_joint-0.2-1-E', '330_joint', '330_joint-to-430_joint-0.2-0-N', 'eef')
+# simplified version: ('540_base', '540_base-to-330_joint-0.1-1-N', '330_joint', '330_joint-to-330_joint-0.15-0-N', '330_joint', '330_joint-to-430_joint-0.3-0-N', '430_joint', '430_joint-to-330_joint-0.3-1-N', '330_joint', '330_joint-to-430_joint-0.15-0-N', '430_joint', '430_joint-to-330_joint-0.1-0-N', 'eef')
+# Generation 51, 52,474 seconds
 def main(hyperparameters = None, visualize = False):
 
 
@@ -350,6 +377,14 @@ def main(hyperparameters = None, visualize = False):
 
     generated_links = generate_i_links(r_540_base, [r_330_joint, r_430_joint, r_540_joint])
     # Create database
+    # r_4310_base = create_revolute_joint("assets/Assem_4310_BASE/Assem_4310_BASE/urdf/Assem_4310_BASE.urdf")
+    # r_4305_joint = create_revolute_joint("assets/Assem_4305_JOINT/Assem_4305_JOINT/urdf/Assem_4305_JOINT.urdf")
+    # r_4310_joint = create_revolute_joint("assets/Assem_4310_JOINT/Assem_4310_JOINT/urdf/Assem_4310_JOINT.urdf")
+
+    # baseto4310_links = create_i_links(rod_name="BASE-to-4310")
+    # r4310to4305_links = create_i_links(rod_name="4310-to-4305")
+    # r4310to4310_links = create_i_links(rod_name="4310-to-4310")
+
     global db
     db = ModulesDB()
     db.add(r_330_joint)
@@ -359,6 +394,14 @@ def main(hyperparameters = None, visualize = False):
 
     db = db.union(eef)
     db = db.union(generated_links)
+
+    # db.add(r_4310_base)
+    # db.add(r_4310_joint)
+    # db.add(r_4305_joint)
+
+    # db = db.union(baseto4310_links)
+    # db = db.union(r4310to4305_links)
+    # db = db.union(r4310to4310_links)
     viz = db.debug_visualization()
 
     

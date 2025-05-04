@@ -13,11 +13,12 @@ def square_rod_mass(l: float, side: float, side_inner: float = 0) -> float:
     :param side_inner: Inner side length of the square cross-section (meters, for hollow rods).
     :return: Mass of the rod (kg).
     """
-    density = 1.0  # Replace with the appropriate density (kg/m^3)
+    density = 1240 * 1/2  # Replace with the appropriate density (kg/m^3)
     mass = density * l * side ** 2
     hollow_mass = density * l * side_inner ** 2
-    return mass - hollow_mass
-
+    #return mass - hollow_mass
+    densitym_l = 0.1013
+    return densitym_l * l
 
 def square_rod_inertia(l: float, side: float, side_inner: float = 0) -> pinocchio.pin.Inertia:
     """
@@ -188,6 +189,27 @@ author = "Jonas Li, Jae Won Kim" # Add other team memeber names
 email = "liyunzhe.jonas@berkeley.edu"
 affiliation = "UC Berkeley"
 
+MODULE_TO_TORQUE = {
+    '330': 0.93,
+    '540': 10.6,
+    '430': 3.4,
+    'base': 10.6,
+    'default': 0.5,
+}
+
+def module_to_torque(module_name):
+    if 'base' in module_name:
+        return MODULE_TO_TORQUE['base']
+    elif '330' in module_name:
+        return MODULE_TO_TORQUE['330']
+    elif '540' in module_name:
+        return MODULE_TO_TORQUE['540']
+    elif '430' in module_name:
+        return MODULE_TO_TORQUE['430']
+    else:
+        print("Using default torque")
+        return MODULE_TO_TORQUE['default']
+    
 def generate_header(header_id, header_name):
     return ModuleHeader(ID=header_id,
                         name=header_name,
@@ -198,17 +220,17 @@ def generate_header(header_id, header_name):
                         )
 # [m, f]
 def read_rod_trans(rod_name, length, diameter):
-    if rod_name == "baseto4310":
+    if rod_name == "BASE-to-4310":
         ROT_X = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
         return [ROT_X @ Transformation.from_translation([0, length/2, 0]), Transformation.from_translation([0, 0, length/2])]
-    elif rod_name == "r4310to4305":
+    elif rod_name == "4310-to-4305":
         ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
         ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
         ROT_Y = Transformation.from_rotation(rotX(np.pi/2)[:3, :3])
         config_1 = [Transformation.from_translation([0, 0, 0]), Transformation.from_translation([0, -diameter, -length/2+diameter/2])]
         config_2 = [ROT_Y @ Transformation.from_translation([0, length/2, 0]), ROT_Y @ Transformation.from_translation([0, -length/2 - diameter/2, 0])] # ROT_Y @ Transformation.from_translation([0, -length/2+diameter/2, 0])
         return config_2
-    elif rod_name == "r4310to4310":
+    elif rod_name == "4310-to-4310":
         ROT_X_90 = Transformation.from_rotation(rotX(-np.pi/2)[:3, :3])
         ROT_Z_180 = Transformation.from_rotation(rotZ(np.pi)[:3, :3])
         ROT_Z_90 = Transformation.from_rotation(rotZ(np.pi/2)[:3, :3])
