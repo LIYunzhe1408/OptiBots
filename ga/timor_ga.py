@@ -111,7 +111,7 @@ def generate_tasks(n, num_obstacles=3):
         tasks.append(task)
     return tasks
 
-TASKS = generate_tasks(3, 20)
+TASKS = generate_tasks(2, 20)
   # each element on a new line
 def num_incorrect_connections(moduleAssembly):
     """
@@ -226,7 +226,7 @@ def calculate_stability(assembly: ModuleAssembly):
                 stability += 1
             previous_module = current_module
 
-    return 1 + stability/4
+    return 1 + stability/2
 
 def over_budget(assembly: ModuleAssembly):
     """
@@ -234,7 +234,7 @@ def over_budget(assembly: ModuleAssembly):
     """
     modules = list(assembly.original_module_ids)
     num_over = max(modules.count("540_joint") - 1, 0) + max(modules.count("430_joint") - 5, 0) + max(modules.count("330_joint") - 2, 0)
-    return 1 + num_over/4
+    return 1 + num_over/2
 
 def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
     """
@@ -261,7 +261,7 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
         # reachability = Reachability(robot_modules=assembly.original_module_ids, task=task, db=db)
         # reachability.reachability_random_sample_actors(num_samples = 5000, num_actors = 4, batch_size = 1000)
         # reachability_score += reachability.find_reachibility_percentage(voxel_size = 0.1)
-        valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE, mass=0.1)
+        valid_poses = reachability.reachability_random_sample(num_samples = NUM_SAMPLE, mass=0.7)
         if not valid_poses:
             reachability_score += 0
             return Lexicographic(0, -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -1000)
@@ -270,8 +270,8 @@ def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int
             reachable = np.array([list(pt) for pt in reachable])
             reachability_score += reachability.find_reachibility_percentage(valid_pose=reachable, voxel_size=0.1)
     num_links = assembly.nModules - assembly.nJoints - 1
-    budget = over_budget(assembly)
-    return Lexicographic(reachability_score * 100 / (len(TASKS) * budget), -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -assembly.mass * 100)
+    #budget = over_budget(assembly)
+    return Lexicographic(reachability_score * 100 / (len(TASKS)), -cost, -10 * assembly.nJoints, -10 * assembly.nModules, -assembly.mass * 100)
 
 # def fitness_function(assembly: ModuleAssembly, ga_instance: pygad.GA, index: int) -> Lexicographic:
 #     """
@@ -301,7 +301,7 @@ def on_generation(ga):
     #print("Num2ID: ", NUM2ID)
     for solution in ga.best_solutions:
         solution_module.append([NUM2ID[num] for num in solution])
-    with open("best_solution.txt", "a") as file:  # Open file in append mode
+    with open("best_solution_new.txt", "a") as file:  # Open file in append mode
         file.write(f"Best fitness: {ga.best_solutions_fitness}\n")
         file.write(f"Best solution: {solution_module}\n\n")
 
@@ -414,6 +414,13 @@ def filter(module):
 # ('540_base', '540_base-to-330_joint-0.1-1-S', '330_joint', '330_joint-to-540_joint-0.1-3-W', '540_joint', '540_joint-to-430_joint-0.3-0-E', '430_joint', '430_joint-to-540_joint-0.15-0-W', '540_joint', '540_joint-to-330_joint-0.2-1-E', '330_joint', '330_joint-to-430_joint-0.2-0-N', 'eef')
 # simplified version: ('540_base', '540_base-to-330_joint-0.1-1-N', '330_joint', '330_joint-to-330_joint-0.15-0-N', '330_joint', '330_joint-to-430_joint-0.3-0-N', '430_joint', '430_joint-to-330_joint-0.3-1-N', '330_joint', '330_joint-to-430_joint-0.15-0-N', '430_joint', '430_joint-to-330_joint-0.1-0-N', 'eef')
 # Generation 51, 52,474 seconds
+
+# ('540_base', '540_base-to-330_joint-0.1-1-N', '330_joint', '330_joint-to-430_joint-0.15-0-W', '430_joint', '430_joint-to-330_joint-0.1-2-S', '330_joint', '330_joint-to-430_joint-0.15-0-E', '430_joint', '430_joint-to-430_joint-0.1-2-E', '430_joint', '430_joint-to-430_joint-0.3-2-W', 'eef')
+# full ga, 169783 seconds (~2 days)
+
+# ['540_base', '540_base-to-540_joint-0.1-0-N', '540_joint', '540_joint-to-540_joint-0.1-0-N', '540_joint', '540_joint-to-430_joint-0.2-0-E', '430_joint', '430_joint-to-330_joint-0.1-2-E', '330_joint', '330_joint-to-330_joint-0.15-0-W', '330_joint', '330_joint-to-430_joint-0.3-0-E', 'EMPTY', 'eef']
+# modified ga
+
 def main(hyperparameters = None, visualize = False):
 
 
@@ -440,20 +447,12 @@ def main(hyperparameters = None, visualize = False):
     db.add(r_430_joint)
     db.add(r_540_joint)
     db.add(r_540_base)
-
     db = db.union(eef)
     db = db.union(generated_links)
 
-    # db.add(r_4310_base)
-    # db.add(r_4310_joint)
-    # db.add(r_4305_joint)
-
-    # db = db.union(baseto4310_links)
-    # db = db.union(r4310to4305_links)
-    # db = db.union(r4310to4310_links)
     viz = db.debug_visualization()
+    optimized_results, ga = optimize(db, our_hyperparameters)
 
-    
     #baseNames = [r_4310_base.id]
     # print(baseNames)
     #eefNames = list(eef.by_id.keys())
@@ -464,7 +463,6 @@ def main(hyperparameters = None, visualize = False):
     # db = ModulesDB.from_json_file(modules_file)
     # db2 = db.filter(filter)
     # print(db2.all_module_names)
-    optimized_results, ga = optimize(db, our_hyperparameters)
 
     # # when adding the other joints
     # # r_4305_joint.id
@@ -488,17 +486,17 @@ def main(hyperparameters = None, visualize = False):
 
     print(optimized_results)
 
-    best_robot_config = naive_optimize(
-        db=db,
-        baseNames=baseNames,
-        jointNames=jointNames,
-        base_or_joint_to_compatible_links=base_or_joint_to_compatible_links,
-        joint_to_link_and_next_joint=joint_to_link_and_next_joint,
-        eefNames=eefNames,
-        startDOF=2,  # desired minimum DOF
-        endDOF=2     # desired maximum DOF
-    )
-    print(best_robot_config)
+    # best_robot_config = naive_optimize(
+    #     db=db,
+    #     baseNames=baseNames,
+    #     jointNames=jointNames,
+    #     base_or_joint_to_compatible_links=base_or_joint_to_compatible_links,
+    #     joint_to_link_and_next_joint=joint_to_link_and_next_joint,
+    #     eefNames=eefNames,
+    #     startDOF=2,  # desired minimum DOF
+    #     endDOF=2     # desired maximum DOF
+    # )
+    # print(best_robot_config)
 
 
 

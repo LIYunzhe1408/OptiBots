@@ -389,6 +389,16 @@ class GA:
             p_mutation = weights / weights.sum()
             while True:
                 gene_new_id = self.rng.choice(replacement_candidates, p=p_mutation)
+                if gene_initial_id in self.joint_ids and gene_new_id in self.joint_ids:
+                    # prev_joint, current_joint = extract_joints_from_link(self.all_modules[offspring[individual, gene-1]])
+                    # current_joint, next_joint = extract_joints_from_link(self.all_modules[offspring[individual, gene+1]])
+                    prev_link = self.all_modules[offspring[individual, gene-1]]
+                    next_link = self.all_modules[offspring[individual, gene+1]]
+                    new_prev_link = prev_link.replace("-to-" + gene_initial_id, "-to-" + gene_new_id)
+                    new_next_link = next_link.replace(gene_initial_id + "-to-", gene_new_id + "-to-")
+                    offspring[individual, gene-1] = self.id2num[new_prev_link]
+                    offspring[individual, gene+1] = self.id2num[new_next_link]
+
                 offspring[individual, gene] = self.id2num[gene_new_id]
                 if self.check_individual(offspring[individual]):
                     break
@@ -679,6 +689,20 @@ class GA:
 
         for p1, p2, s in randomly(itertools.product(parents, parents, split_positions), rng=self.rng):
             child = np.concatenate((p1[:s], p2[s:]))
+            if child[s-1] in self.link_ids and child[s] in self.joint_ids:
+                link = self.all_modules[child[s-1]]
+                prev_joint = self.all_modules[p1[s]]
+                new_joint = self.all_modules[child[s]]
+                new_link = link.replace("-to-" + prev_joint, "-to-" + new_joint)
+ 
+                child[s-1] = self.id2num[new_link]
+            elif child[s-1] in self.joint_ids and child[s] in self.link_ids:
+                link = self.all_modules[child[s]]
+                prev_joint = self.all_modules[p2[s-1]]
+                new_joint = self.all_modules[child[s-1]]
+                new_link = link.replace(prev_joint + "-to-", new_joint + "-to-")
+                
+                child[s] = self.id2num[new_link]
             if self.check_individual(child):
                 offsprings.append(child)
             if len(offsprings) >= offspring_size[0]:

@@ -68,7 +68,7 @@ def create_inertia(inertial):
     center_of_mass = np.array([float(coord) for coord in inertial['origin']['xyz'].split()])
     
     # Step 4: Create and return the Inertia object
-    inertia = pinocchio.Inertia(mass, center_of_mass, inertia_matrix)
+    inertia = pinocchio.Inertia(5 * mass, center_of_mass, inertia_matrix)
     return inertia
 
 def body2connector_helper(joint_xyz, joint_rpy, link_xyz, link_rpy):
