@@ -111,7 +111,7 @@ def generate_tasks(n, num_obstacles=3):
         tasks.append(task)
     return tasks
 
-TASKS = generate_tasks(2, 20)
+TASKS = generate_tasks(1, 20)
   # each element on a new line
 def num_incorrect_connections(moduleAssembly):
     """

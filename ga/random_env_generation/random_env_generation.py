@@ -74,6 +74,7 @@ def plot_random_cuboids(num_cuboids=20, total_volume=0.001, space_size=(1.0, 1.0
 
     # List to store sizes and origins
     cuboid_info = []
+    
     x_size, y_size, z_size = space_size
     x_bounds = (-x_size/2.0, x_size/2.0)
     y_bounds = (-y_size/2.0, y_size/2.0)
@@ -108,6 +109,8 @@ def plot_random_cuboids(num_cuboids=20, total_volume=0.001, space_size=(1.0, 1.0
         if attempts >= 10000:
             print("Maximum number of attempts reached. Could not place all cuboids without overlap.")
             break
+    plot_cuboid(ax, cuboid_data([-0.5, -0.5, -1.01], [1, 1, 1]))
+    cuboid_info.append({'size': {'x': 1, 'y': 1, 'z': 1}, 'origin': {'x': -0.5, 'y': -0.5, 'z': -1.01}}) #create floor
 
     # Set axis labels and limits
     ax.set_xlabel('X')
@@ -115,7 +118,7 @@ def plot_random_cuboids(num_cuboids=20, total_volume=0.001, space_size=(1.0, 1.0
     ax.set_zlabel('Z')
     ax.set_xlim(x_bounds)
     ax.set_ylim(y_bounds)
-    ax.set_zlim(z_bounds)
+    ax.set_zlim((-z_size, z_size))
     plt.show()
 
     return cuboid_info
